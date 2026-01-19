@@ -7,13 +7,13 @@ const upComing = asyncHandler( async(req, res) => {
     try{
         const response = await pvrUpComing.post("", {})
         const movie = response.data?.output?.movies || []
-        const upcomingMoives = movie.map(mapPvrMovie)
+        const upcomingMovies = movie.map(mapPvrMovie)
 
         return res.status(200)
         .json({
             success: true,
-            count: upcomingMoives.length,
-            movies: upcomingMoives
+            count: upcomingMovies.length,
+            movies: upcomingMovies
         })
 
     }

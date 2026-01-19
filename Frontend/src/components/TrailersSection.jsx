@@ -11,12 +11,17 @@ function TrailersSection() {
     const [nowShowingMovies, setNowShowingMovies] = useState([])
 
     useEffect(() => {
-        axios.post("http://localhost:8000/api/pvr/now-showing")
-            .then(res => setNowShowingMovies(res.data.movies || []))
-            .catch((error) => {
-                console.log("Now Showing Movies data fetch error", error)
-                setNowShowingMovies([])
-            })
+        const fetchNowShowing = async () => {
+            try {
+                const res = await axios.get("http://localhost:8000/api/v1/movies/now-showing")
+                setNowShowingMovies(res.data.data || []);
+            }
+            catch(error){
+                console.log("Now Showing Movies fetch error", error);
+                setNowShowingMovies([]);
+            }
+        }
+        fetchNowShowing()
     },[])
 
     if(!nowShowingMovies.length){
@@ -31,12 +36,12 @@ function TrailersSection() {
                 {
                     !isPlaying ? (
                         <div className='relative cursor-pointer rounded-lg overflow-hidden' onClick={() => setIsPlaying(true)} >
-                            <img src={nowShowingMovies[currentTrailer].mih} alt='trailer' className='w-full h-135 object-cover brightness-75' />
+                            <img src={nowShowingMovies[currentTrailer].bannerUrl} alt='trailer' className='w-full h-135 object-cover brightness-75' />
                             <PlayCircleIcon strokeWidth={1.6} className='absolute top-1/2 left-1/2 w-12 h-12 md:w-16 md:h-16 transform -translate-x-1/2 -translate-y-1/2 text-white' />
                         </div>
                     ) : (
                     <ReactPlayer 
-                        src={nowShowingMovies[currentTrailer].trailer} 
+                        src={nowShowingMovies[currentTrailer].trailerUrl} 
                         playing={isPlaying} 
                         controls={true} 
                         width='100%'
@@ -48,13 +53,13 @@ function TrailersSection() {
             <div className='group grid grid-cols-4 gap-4 md:gap-8 mt-20 max-w-3xl mx-auto'>
                 {
                     nowShowingMovies.slice(0,4).map((movie, index)=>(
-                        <div key={`${movie.id}-${index}`}
+                        <div key={movie._id}
                             onClick={() => {
                                 setCurrentTrailer(index);
                                 setIsPlaying(false);
                             }}
                             className='border-2 border-white relative group cursor-pointer rounded-lg overflow-hidden max-md:h-60 md:max-h-60 hover:-translate-y-1 duration-300 transition shadow-md shadow-white hover:shadow-primary hover:shadow-xl'>
-                            <img src={movie.miv} alt='trailer' className='border-8 border-black rounded-lg w-full h-full object-contain brightness-75' />
+                            <img src={movie.posterUrl} alt='trailer' className='border-8 border-black rounded-lg w-full h-full object-contain brightness-75' />
                             <PlayCircleIcon strokeWidth={1.6} className='absolute top-1/2 left-1/2 w-5 md:w-8 h-5 md:h-12 transform -translate-x-1/2 -translate-y-1/2' />
                         </div>
                     ))

@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const citySchema = new mongoose.Schema({
 
+    cityId: {
+        type: Number,
+        unique: true,
+        index: true,
+    },
     name: {
         type: String,
         trim: true,
@@ -16,17 +21,31 @@ const citySchema = new mongoose.Schema({
         index: true,
         lowercase: true,
     },
+    region: {
+        type: String,
+    },
+    cinemaCount: {
+        type: Number,
+        required: true,
+        min: 0,
+    },
+    latitude: {
+        type: Number,
+        required: true,
+    },
+    longitude: {
+        type: Number,
+        required: true,
+    },
     country: {
         type: String,
-        trim: true,
-        required: true,
+        default: "india",
         lowercase: true,
     }
 
 },{timestamps: true})
 
 
-// The combination of name + state + country must be unique,but each field alone can repeat.
 citySchema.index(
     {
         name: 1, 

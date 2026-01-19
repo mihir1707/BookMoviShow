@@ -20,10 +20,14 @@ app.get("/health", (req, res) => {
 
 
 import userRouter from './routes/user.router.js'
-import pvrRouter from './routes/pvr.router.js'
+import cityRouter from './routes/city.router.js'
+import movieRouter from './routes/movie.router.js'
+import paymentRouter from './routes/payment.router.js'
 
 app.use('/api/v1/users', userRouter)
-app.use("/api/pvr", pvrRouter)
+app.use('/api/v1/movies', movieRouter)
+app.use('/api/v1/cities', cityRouter)
+app.use('/api/v1/payment', paymentRouter)
 
 
 export default app;

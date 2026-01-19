@@ -12,11 +12,11 @@ function Movies() {
     useEffect(() => {
         const fetchMovies = async () => {
             try{
-                const nowShowing = await axios.post("http://localhost:8000/api/pvr/now-showing")
-                const upComing = await axios.post("http://localhost:8000/api/pvr/up-coming")
+                const nowShowing = await axios.get("http://localhost:8000/api/v1/movies/now-showing")
+                const upComing = await axios.get("http://localhost:8000/api/v1/movies/upcoming")
 
-                setNowShowingMovies(nowShowing.data.movies || [])
-                setUpComingMovies(upComing.data.movies || [])
+                setNowShowingMovies(nowShowing.data.data || [])
+                setUpComingMovies(upComing.data.data || [])
             }
             catch(error){
                 console.error("Movies data fetch error", error)
@@ -43,10 +43,10 @@ function Movies() {
                 <h1 className='text-2xl my-4'>Now Showing</h1>
                 <div className='flex flex-wrap max-sm:justify-center gap-8'>
                     {
-                        nowShowingMovies.map((movie, index)=>(
-                            <MovieCard movie={movie} key={`${movie.moviename}-${index}`} />
+                        nowShowingMovies.map((movie) => (
+                            <MovieCard key={movie._id} movie={movie} />
                         ))
-                    }
+                }
                 </div>
             </div>
             
@@ -54,8 +54,8 @@ function Movies() {
                 <h1 className='text-2xl my-4'>Up Coming</h1>
                 <div className='flex flex-wrap max-sm:justify-center gap-8'>
                     {
-                        upComingMovies.map((movie, index)=>(
-                            <MovieCard movie={movie} key={`${movie.moviename}-${index}`} />
+                        upComingMovies.map((movie)=>(
+                            <MovieCard key={movie._id} movie={movie} />
                         ))
                     }
                 </div>

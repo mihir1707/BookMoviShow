@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { MoviesDetailsData } from '../assets/MoviesData.js'
 import MovieCard from './MovieCard.jsx'
 import axios from 'axios'
 
@@ -12,14 +11,18 @@ function FeatureSelection() {
     const [nowShowingMovies, setNowShowingMovies] = useState([])
 
     useEffect(() => {
-        axios.post("http://localhost:8000/api/pvr/now-showing")
-            .then(res => setNowShowingMovies(res.data.movies || []))
-            .catch((error) => {
-                console.log("Now Showing Movies data fetch error", error)
-                setNowShowingMovies([])
-            })
+        const fetchNowShowing = async () => {
+            try {
+                const res = await axios.get("http://localhost:8000/api/v1/movies/now-showing")
+                setNowShowingMovies(res.data.data || []);
+            }
+            catch(error){
+                console.log("Now Showing Movies fetch error", error);
+                setNowShowingMovies([]);
+            }
+        }
+        fetchNowShowing()
     },[])
-
 
     return (
         <div className='px-6 md:px-16 lg:px-24 xl:px-44 overflow-hidden'>
@@ -34,14 +37,14 @@ function FeatureSelection() {
 
             <div className='flex flex-wrap max-sm:justify-center gap-10 mt-8'>
                 {
-                    nowShowingMovies.slice(0,4).map((movie, index)=>(
-                        <MovieCard key={`${movie.moviename}-${index}`} movie={movie} />
+                    nowShowingMovies.slice(0,4).map((movie) => (
+                        <MovieCard key={movie._id} movie={movie} />
                     ))
                 }
             </div>
 
             <div className='flex justify-center mt-20'>
-                <button onClick={()=>{navigate('movies');scrollTo(0,0)}} className='px-10 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-md font-medium cursor-pointer'>
+                <button onClick={()=>{navigate('/movies'); window.scrollTo(0,0)}} className='px-10 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-md font-medium cursor-pointer'>
                     Show more
                 </button>
             </div>

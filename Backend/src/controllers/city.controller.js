@@ -1,37 +1,83 @@
-import { fetchPVRCities } from "../services/location.js";
+import { City } from "../models/city.model.js";
+import APIresponse from "../utils/APIresponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-const searchCity = asyncHandler(async (req, res) => {
-    const city = req.query.city?.trim().toLowerCase();
 
-    const data = await fetchPVRCities();
+const getAllCities = asyncHandler( async(req, res) => {
 
-    const allCitiesRaw = [
-        ...(data?.output?.ot || []),
-        ...(data?.output?.pc || []),
-        ...(data?.output?.nc || []),
-    ];
+    const cities = await City.find({})
+        .select("cityId name state region cinemaCount latitude longitude country")
+        .sort({ name: 1 });
 
-    if (!Array.isArray(allCitiesRaw) || allCitiesRaw.length === 0) {
-        return res.status(500).json({ message: "City data unavailable" });
+    return res.status(200)
+    .json(
+        new APIresponse(
+            200,
+            cities,
+            "Cities fetched successfully",
+        )
+    )
+})
+
+const searchCity = asyncHandler( async(req, res) => {
+
+    const query = (req.query.city || req.query.query)?.trim().toLowerCase();
+
+    if(!query){
+        return res.status(400)
+        .json(
+            new APIresponse(
+                400,
+                {},
+                "City query is required",
+            )
+        )
     }
 
-    const cityMap = new Map();
-    allCitiesRaw.forEach(c => {
-        if (c?.id) cityMap.set(c.id, c);
-    });
+    const cities = await City.find({
+        name: {
+            $regex: query,
+            $options: "i",
+        }
+    }).select("cityId name state cinemaCount").sort({ name: 1 });
 
-    let allCities = Array.from(cityMap.values());
+    return res.status(200)
+    .json(
+        new APIresponse(
+            200,
+            cities,
+            "Cities fetched successfully",
+        )
+    )
+})
 
-    if (city) {
-        allCities = allCities.filter(c =>
-            c.name.toLowerCase().includes(city)
-        );
+const getCityById = asyncHandler( async(req, res) => {
+
+    const city = await City.findById(req.params.id);
+
+    if(!city){
+        return res.status(404)
+        .json(
+            new APIresponse(
+                404,
+                {},
+                "City not found",
+            )
+        )
     }
 
-    allCities.sort((a, b) => a.name.localeCompare(b.name));
+    return res.status(200)
+    .json(
+        new APIresponse(
+            200,
+            city,
+            "City fetched successfully",
+        )
+    )
+})
 
-    return res.status(200).json(allCities);
-});
-
-export { searchCity };
+export {
+    getAllCities,
+    searchCity,
+    getCityById,
+}

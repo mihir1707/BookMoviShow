@@ -10,30 +10,39 @@ const toArrayConvert = (value) => {
     return []
 }
 
+
 export const mapPvrMovie = (movie) => {
 
     const cleanName = movie.filmName ?.replace(/\s*\([^)]*\)/g, "").trim()
     const formatedName = cleanName ? toTitleCase(cleanName) : ""
 
     return {
-        id: movie.id,
-        name: formatedName,
-        releaseDate: movie.releaseDate,
-        casts: toArrayConvert(movie.starring),
-        director: toArrayConvert(movie.director),
-        synopsis: movie.synopsis,
-        year: movie.year,
-        adult: movie.adult,
-        adultMessage: movie.adultMessage,
-        backdropImage: movie.backdropImage,
-        mstatus: movie.movieType,
-        category: movie.category,
-        certificate: movie.ce,
+        pvrId: movie.id,
+
+        title: formatedName,
+
+        description: movie.synopsis || "No description available",
+
         runtime: movie.mlength,
-        languages: movie.mfs,
+
+        releaseDate: new Date(movie.releaseDate),
+
         genres: movie.grs,
-        trailer: movie.mtrailerurl,
-        miv: movie.miv,
-        mih: movie.mih,
+
+        languages: movie.mfs,
+
+        posterUrl: movie.miv || movie.mih || "",
+
+        bannerUrl: movie.mih || null,
+
+        trailerUrl: movie.mtrailerurl || null,
+
+        censorRating: movie.ce || "UA",
+
+        cast: toArrayConvert(movie.starring),
+
+        crew: toArrayConvert(movie.director),
+
+        isActive: movie.movieType === "NOWSHOWING",
     };
 };
