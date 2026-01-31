@@ -1,4 +1,4 @@
-import { Crosshair, Search, X } from 'lucide-react'
+import { Crosshair, Search } from 'lucide-react'
 import { cities } from '../lib/cities'
 import CityCard from './CityCard'
 import { useEffect, useRef, useState } from 'react'
@@ -15,15 +15,16 @@ function LocationCard({ onClose }) {
     const [allCities, setAllCities] = useState([]);
 
     useEffect(() => {
-        axios.get("http://localhost:8000/api/search-city")
-            .then(res => setAllCities(res.data))
+        axios.get("http://localhost:8000/api/v1/cities")
+            .then(res => setAllCities(res.data.data || []))
             .catch(() => setAllCities([]));
     }, []);
 
 
     useEffect( () => {
-        if(!city.trim()){
+        if(city.trim().length<2){
             setResults([])
+            setLoading(false)
             return
         }
 
@@ -31,10 +32,10 @@ function LocationCard({ onClose }) {
             try{
                 setLoading(true)
                 const res = await axios.get(
-                    "http://localhost:8000/api/search-city",
+                    "http://localhost:8000/api/v1/cities/search",
                     {params: {city}}
                 );
-                setResults(res.data);
+                setResults(res.data.data || []);
             }
             catch(error){
                 console.error("City search error:", error);
@@ -51,7 +52,7 @@ function LocationCard({ onClose }) {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (modalRef.current && !modalRef.current.contains(e.target)) {
+            if(modalRef.current && !modalRef.current.contains(e.target)) {
                 onClose()
             }
         }
@@ -75,19 +76,19 @@ function LocationCard({ onClose }) {
                 let nearestCity = null
                 let minDistance = Infinity
 
-                allCities.forEach(city => {
-                    if(!city.lat || !city.lng) return;
+                allCities.forEach(ct=> {
+                    if(!ct.lat || !ct.lng) return;
 
                     const dist = getDistanceKm(
                         latitude,
                         longitude,
-                        parseFloat(city.lat),
-                        parseFloat(city.lng),
+                        parseFloat(ct.lat),
+                        parseFloat(ct.lng),
                     )
 
                     if(dist<minDistance){
                         minDistance=dist
-                        nearestCity=city
+                        nearestCity=ct
                     }
 
                 })
@@ -97,14 +98,7 @@ function LocationCard({ onClose }) {
                     return;
                 }
 
-                const cityName = nearestCity.name;
-
-                localStorage.setItem("userCity", cityName);
-                window.dispatchEvent(
-                    new CustomEvent("city-changed", { detail: cityName })
-                );
-
-                onClose()
+                selectCity(nearestCity.name)
 
             },
             () => alert("Location permission denied")
@@ -112,7 +106,7 @@ function LocationCard({ onClose }) {
 
     };
 
-    const handleSelectCity = (cityName) => {
+    const selectCity = (cityName) => {
         localStorage.setItem("userCity", cityName);
         window.dispatchEvent(
             new CustomEvent("city-changed", { detail: cityName })
@@ -122,8 +116,9 @@ function LocationCard({ onClose }) {
         onClose();
     };
 
+
     return (
-        <div onClick={onClose} className="fixed inset-70 bg-black/60 flex items-center justify-center">
+        <div className="fixed inset-70 bg-black/60 flex items-center justify-center">
 
             <div
                 ref={modalRef} 
@@ -147,13 +142,18 @@ function LocationCard({ onClose }) {
                             {
                                 results.map((c) => (
                                     <div 
-                                        key={c.id}
-                                        onClick={() => handleSelectCity(c.name)}
+                                        key={c._id}
+                                        onClick={() => selectCity(c.name)}
                                         className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                     >
-                                        <p className="font-medium text-xs text-black">{c.name}</p>
+                                        <p 
+                                            className="font-medium text-xs text-black"
+                                        >
+                                            {c.name}
+                                        </p>
                                         <p className="text-sm text-gray-500">
-                                            {c.state} • {c.cinemaCount} cinemas
+                                            {c.state} 
+                                            {/* • {c.cinemaCount} cinemas */}
                                         </p>
                                     </div>
                                 ))
@@ -162,11 +162,19 @@ function LocationCard({ onClose }) {
                     )
                 }
 
-                {
-                    loading && (
-                        <p className="text-sm text-gray-500 mt-2">Searching...</p>
-                    )
-                }
+                {loading && city && (
+                    <p className="text-sm text-gray-500 mt-2 px-4">
+                        Searching cities for <span className="font-semibold">`{city}`</span>...
+                    </p>
+                )}
+
+                {!loading && city.length >= 2 && results.length === 0 && (
+                    <p className="text-sm text-gray-400 mt-2 px-4">
+                        No cities found for "{city}"
+                    </p>
+                )}
+
+
 
                 <button
                     onClick={detectLocation}
@@ -181,13 +189,13 @@ function LocationCard({ onClose }) {
                 <p className='text-center text-black mb-5'>Popular Cities</p>
 
                 <div className='grid grid-cols-10 gap-2'>
-                    {cities.map((city) => (
-                        <div key={city.name} className="flex flex-col items-center">
+                    {cities.map((c) => (
+                        <div key={c.name} className="flex flex-col items-center">
                             <CityCard
-                                city={city}
-                                onSelect={handleSelectCity}
+                                city={c}
+                                onSelect={selectCity}
                             />
-                            <p className="text-sm text-black">{city.name}</p>
+                            <p className="text-sm text-black">{c.name}</p>
                         </div>
                     ))}
                 </div>

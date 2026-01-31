@@ -16,6 +16,13 @@ const movieSchema = new mongoose.Schema({
         index: true,
     },
 
+    slug: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
+    },
+
     description: {
         type: String,
         required: true,
@@ -86,6 +93,17 @@ const movieSchema = new mongoose.Schema({
     censorRating: {
         type: String,
         required: true,
+    },
+
+    popularity: {
+        type: Number,
+        default: 0,
+        index: true,
+    },
+
+    bookingCount: {
+        type: Number,
+        default: 0,
     },
 
     isActive: {

@@ -7,6 +7,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
 
     useEffect(() => {
         if (dates.length > 0) {
+            setSelectedDate(0);
             setSelectedDateLabel(
                 dayjs(dates[0].fullDate).format('ddd, DD MMM, YYYY')
             )
@@ -32,7 +33,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
     return (
         <div className="flex gap-3">
             {dates.map((item, index) => {
-                const isDisabled = index >= dates.length - 3
+                const isDisabled = index >= dates.length - 5
                 const isSelected = selectedDate === index
 
                 return (

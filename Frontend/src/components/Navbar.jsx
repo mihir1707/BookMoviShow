@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronDown, MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react'
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from '../firebase.js'
 import LocationCard from './LocationCard';
 
 function Navbar() {
 
     const [open, setOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false)
-    const [user, setUser] = useState(null)
+    const [user] = useState(() => {
+        try{
+            const storedUser = localStorage.getItem("user");
+            return storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
+        }
+        catch{
+            return null;
+        }
+    });
+
     const navigate = useNavigate()
 
     const [showNavbar, setShowNavbar] = useState(true)
@@ -31,12 +38,11 @@ function Navbar() {
         };
     }, []);
 
-    useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser)
-        })
-        return () => unsub()
-    }, [])
+
+    const getUserInitial = () => {
+        if (!user) return "";
+        return user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase();
+    };
 
 
     useEffect(() => {
@@ -66,7 +72,7 @@ function Navbar() {
 
             <Link to='/' className='max-md:flex-1'>
                 <p className='text-4xl [-webkit-text-stroke:2px_black] font-extrabold bg-primary rounded-full pl-2 pr-2 hover:bg-primary-dull'>
-                    BookMoviShow
+                    BookMovieShow
                 </p>
             </Link>
 
@@ -92,14 +98,13 @@ function Navbar() {
                             Login
                         </button>
                     ) : (
-                        <button
+                        <div
                             onClick={() => navigate('/my-bookings')}
-                            className='flex items-center gap-2 px-4 py-1 sm:px-7 sm:py-2 bg-primary rounded-full font-medium'
+                            className='w-10 h-10 flex items-center justify-center rounded-full bg-primary text-black font-bold text-lg cursor-pointer hover:bg-primary-dull'
+                            title={user.name || user.email}
                         >
-                            <TicketPlus width={15} />
-                            My Booking
-                        </button>
-
+                            {getUserInitial()}
+                        </div>
                     )
                 }
             </div>
@@ -108,7 +113,7 @@ function Navbar() {
                 className='flex flex-row cursor-pointer'
                 onClick={() => setOpen(true)}
             >
-                {currentCity}
+                {currentCity.toUpperCase()}
                 <ChevronDown className='w-4 h-4 mt-1.5 ml-1' />
             </button>
 

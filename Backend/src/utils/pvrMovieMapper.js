@@ -10,18 +10,29 @@ const toArrayConvert = (value) => {
     return []
 }
 
+const generateSlug = (title = "") => {
+    return title
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-");
+};
+
 
 export const mapPvrMovie = (movie) => {
 
     const cleanName = movie.filmName ?.replace(/\s*\([^)]*\)/g, "").trim()
     const formatedName = cleanName ? toTitleCase(cleanName) : ""
+    const slug = generateSlug(formatedName);
 
     return {
         pvrId: movie.id,
 
         title: formatedName,
 
-        description: movie.synopsis || "No description available",
+        slug,
+
+        description: movie.synopsis?.trim() || "No description available",
 
         runtime: movie.mlength,
 

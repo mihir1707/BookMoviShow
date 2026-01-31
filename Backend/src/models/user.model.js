@@ -24,12 +24,11 @@ const userSchema = new mongoose.Schema({
         trim: true,
         lowercase: true,
     },
-    phonenumber: {
+    phoneNumber: {
         type: String,
         required: true,
         unique: true,
         trim: true,
-        index: true,
     },
     password: {
         type: String,
@@ -51,7 +50,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['USER', 'ADMIN'],
         default: 'USER',
-    }
+    },
+    favoriteMovies: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Movie",
+        }
+    ],
 
 },{timestamps: true})
 

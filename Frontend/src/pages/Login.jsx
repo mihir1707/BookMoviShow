@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider } from "firebase/auth";
-import { auth } from "../firebase";
 import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaMicrosoft, FaFacebookF, FaTwitter } from "react-icons/fa";
+import axios from "axios";
 
 export default function Login() {
 
@@ -24,90 +23,45 @@ export default function Login() {
     if (!isOpen) return null;
 
     const handleLogin = async () => {
+        console.log("Hello!")
         setError("");
         if(!email || !password){
             setError("Email and password are required");
             return;
         }
-        try{
-            const userCredential = await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
+        try {
+            const res = await axios.post("http://localhost:8000/api/v1/users/login",
+                {
+                    email,
+                    password,
+                },
+                {
+                    withCredentials: true,
+                }
             );
-            console.log("User:", userCredential.user);
-            alert("Login successful 🎉");
+
+            const { accessToken, refreshToken, user } = res.data.data;
+
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("refreshToken", refreshToken);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            alert("Login successful");
             setIsOpen(false);
-        }
-        catch (err){
-            console.error(err.code);
-            if(err.code === "auth/user-not-found"){
-                setError("User not found");
+
+        } 
+        catch(err){
+            console.error(err);
+
+            if(err.response?.status === 401){
+                setError("Invalid credentials");
             } 
-            else if(err.code === "auth/wrong-password"){
-                setError("Wrong password");
+            else if(err.response?.status === 404){
+                setError("User not found");
             }
             else{
                 setError("Login failed. Try again.");
             }
-        }
-    };
-
-    // Google
-    const handleGoogleLogin = async () => {
-        try{
-            const provider = new GoogleAuthProvider();
-            // console.log(provider);
-            const result = await signInWithPopup(auth, provider);
-            console.log(result.user);
-            alert("Google login successful 🎉");
-            setIsOpen(false);
-        }
-        catch (error){
-            console.error(error);
-            setError("Google login failed");
-        }
-    };
-
-    // Facebook
-    const handleFacebookLogin = async () => {
-        try{
-            const provider = new FacebookAuthProvider();
-            await signInWithPopup(auth, provider);
-            alert("Facebook login successful 🎉");
-            setIsOpen(false);
-        } 
-        catch (err){
-            console.error(err);
-            setError("Facebook login failed");
-        }
-    };
-
-    // Twitter
-    const handleTwitterLogin = async () => {
-        try{
-            const provider = new TwitterAuthProvider();
-            await signInWithPopup(auth, provider);
-            alert("Twitter login successful 🎉");
-            setIsOpen(false);
-        } 
-        catch (err){
-            console.error(err);
-            setError("Twitter login failed");
-        }
-    };
-
-    // Microsoft
-    const handleMicrosoftLogin = async () => {
-        try{
-            const provider = new OAuthProvider("microsoft.com");
-            await signInWithPopup(auth, provider);
-            alert("Microsoft login successful 🎉");
-            setIsOpen(false);
-        } 
-        catch (err){
-            console.error(err);
-            setError("Microsoft login failed");
         }
     };
 
@@ -120,7 +74,10 @@ export default function Login() {
                 onClick={() => setIsOpen(false)}
             />
 
-            <div className="relative w-95 rounded-2xl border-2 border-black bg-black/90 shadow-2xl p-6 ">
+            <div 
+                className="relative w-95 rounded-2xl border-2 border-black bg-black/90 shadow-2xl p-6 "
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 <div className="flex justify-center mb-3 ">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center">
@@ -131,7 +88,7 @@ export default function Login() {
                 <h2 className="text-xl font-semibold text-center text-white">
                     Welcome back
                 </h2>
-                <p className="text-sm text-centermb-4 pb-5 ml-15">
+                <p className="text-sm text-4 pb-5 ml-15">
                     Please enter your detail to sign in.
                 </p>
 
@@ -139,29 +96,19 @@ export default function Login() {
                 <div className="flex gap-3 mb-5">
                     <button 
                         className="cursor-pointer flex-1 flex items-center justify-center gap-2 border rounded-lg py-2"
-                        onClick={handleGoogleLogin}
                     >
                         <FcGoogle size={20} />
                     </button>
 
-                    <button 
-                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 border rounded-lg py-2"
-                        onClick={handleMicrosoftLogin}
-                    >
+                    <button  className="cursor-pointer flex-1 flex items-center justify-center gap-2 border rounded-lg py-2">
                         <FaMicrosoft size={18} color="#00A4EF" />
                     </button>
 
-                    <button 
-                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 border rounded-lg py-2"
-                        onClick={handleFacebookLogin}
-                    >
+                    <button className="cursor-pointer flex-1 flex items-center justify-center gap-2 border rounded-lg py-2">
                         <FaFacebookF size={18} color="#1877F2" />
                     </button>
 
-                    <button 
-                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 border rounded-lg py-2"
-                        onClick={handleTwitterLogin}
-                    >
+                    <button className="cursor-pointer flex-1 flex items-center justify-center gap-2 border rounded-lg py-2">
                         <FaTwitter size={18} color="#1DA1F2" />
                     </button>
                 </div>
@@ -183,6 +130,7 @@ export default function Login() {
                         className="w-full mt-1 px-3 py-2 rounded-lg border outline-none focus:ring-2"
                         onChange={(e) => setEmail(e.target.value)}
                     />
+
                 </div>
 
                 {/* Password */}

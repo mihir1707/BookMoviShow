@@ -18,6 +18,7 @@ const seatSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        uppercase: true,
     },
     type: {
         type: String,
@@ -32,13 +33,24 @@ const seatSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true,
+        index: true,
     },
 
-},{timestamps: true})
+},
+{
+    timestamps: true,
+    collection: "seats",
+})
 
 seatSchema.index(
-    { screenId: 1, seatNumber: 1 }, 
-    { unique: true }
+    { 
+        screenId: 1, 
+        row: 1, 
+        seatNumber: 1 
+    },
+    { 
+        unique: true 
+    }
 )
 
 export const Seat = mongoose.model("Seat", seatSchema)

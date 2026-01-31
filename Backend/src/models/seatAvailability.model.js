@@ -43,4 +43,4 @@ seatAvailabilitySchema.index(
     { unique: true }
 );
 
-export const SeatAvailability = mongoose.model("SeatAvilability", seatAvailabilitySchema)
+export const SeatAvailability = mongoose.model("SeatAvailability", seatAvailabilitySchema)

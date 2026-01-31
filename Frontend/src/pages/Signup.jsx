@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../firebase";
 import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaMicrosoft, FaFacebookF, FaTwitter } from "react-icons/fa";
+import axios from "axios";
 
 export default function Signup() {
 
@@ -14,6 +13,8 @@ export default function Signup() {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
+    const [username, setUserName] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
 
     useEffect(() => {
         const openModal = () => setIsOpen(true);
@@ -24,12 +25,20 @@ export default function Signup() {
     if (!isOpen) return null;
 
     const handleSignup = async () => {
+        console.log("Clicked signup", {
+            name,
+            username,
+            email,
+            phoneNumber,
+            password
+        });
         setError("");
 
-        if (!name || !email || !password) {
+        if (!name || !username || !email || !phoneNumber || !password) {
             setError("All fields are required");
             return;
         }
+
 
         if (password.length < 6) {
             setError("Password must be at least 6 characters");
@@ -37,71 +46,40 @@ export default function Signup() {
         }
 
         try {
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
+            const res = await axios.post("http://localhost:8000/api/v1/users/register",
+                {
+                    name,
+                    username,
+                    email,
+                    phoneNumber,
+                    password,
+                },
+                {
+                    withCredentials: true,
+                }
             );
 
-            await updateProfile(userCredential.user, {
-                displayName: name,
-            });
+            const { accessToken, refreshToken, user } = res.data.data;
+
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("refreshToken", refreshToken);
+            localStorage.setItem("user", JSON.stringify(user));
 
             alert("Account created successfully 🎉");
             setIsOpen(false);
-        } catch (err) {
-            console.error(err.code);
 
-            if (err.code === "auth/email-already-in-use") {
+        } 
+        catch (err){
+            console.error(err);
+
+            if(err.response?.status === 409){
                 setError("Email already exists");
-            } else {
+            }
+            else{
                 setError("Signup failed. Try again.");
             }
         }
-    };
 
-    const handleGoogleSignup = async () => {
-        try {
-            const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-            alert("Google signup successful 🎉");
-            setIsOpen(false);
-        } catch {
-            setError("Google signup failed");
-        }
-    };
-
-    const handleFacebookSignup = async () => {
-        try {
-            const provider = new FacebookAuthProvider();
-            await signInWithPopup(auth, provider);
-            alert("Facebook signup successful 🎉");
-            setIsOpen(false);
-        } catch {
-            setError("Facebook signup failed");
-        }
-    };
-
-    const handleTwitterSignup = async () => {
-        try {
-            const provider = new TwitterAuthProvider();
-            await signInWithPopup(auth, provider);
-            alert("Twitter signup successful 🎉");
-            setIsOpen(false);
-        } catch {
-            setError("Twitter signup failed");
-        }
-    };
-
-    const handleMicrosoftSignup = async () => {
-        try {
-            const provider = new OAuthProvider("microsoft.com");
-            await signInWithPopup(auth, provider);
-            alert("Microsoft signup successful 🎉");
-            setIsOpen(false);
-        } catch {
-            setError("Microsoft signup failed");
-        }
     };
 
 
@@ -132,28 +110,16 @@ export default function Signup() {
 
                 {/* Social Buttons */}
                 <div className="flex gap-3 mb-5">
-                    <button 
-                        className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2"
-                        onClick={handleGoogleSignup}
-                    >
+                    <button className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2">
                         <FcGoogle size={20} />
                     </button>
-                    <button 
-                        className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2"
-                        onClick={handleMicrosoftSignup}
-                    >
+                    <button className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2">
                         <FaMicrosoft size={18} color="#00A4EF" />
                     </button>
-                    <button 
-                        className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2"
-                        onClick={handleFacebookSignup}
-                    >
+                    <button className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2">
                         <FaFacebookF size={18} color="#1877F2" />
                     </button>
-                    <button 
-                        className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2"
-                        onClick={handleTwitterSignup}
-                    >
+                    <button className="cursor-pointer flex-1 flex items-center justify-center border rounded-lg py-2">
                         <FaTwitter size={18} color="#1DA1F2" />
                     </button>
                 </div>
@@ -177,6 +143,17 @@ export default function Signup() {
                     />
                 </div>
 
+                {/* username */}
+                <div className="mb-3">
+                    <label className="text-sm">User Name</label>
+                    <input
+                        type="text"
+                        placeholder="Enter your username..."
+                        className="w-full mt-1 px-3 py-2 rounded-lg border outline-none focus:ring-2"
+                        onChange={(e) => setUserName(e.target.value)}
+                    />
+                </div>
+
                 {/* Email */}
                 <div className="mb-3">
                     <label className="text-sm">E-Mail Address</label>
@@ -185,6 +162,17 @@ export default function Signup() {
                         placeholder="Enter your email..."
                         className="w-full mt-1 px-3 py-2 rounded-lg border outline-none focus:ring-2"
                         onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
+
+                {/* Phone No */}
+                <div className="mb-3">
+                    <label className="text-sm">Phone No.</label>
+                    <input
+                        type="text"
+                        placeholder="Enter your phone number..."
+                        className="w-full mt-1 px-3 py-2 rounded-lg border outline-none focus:ring-2"
+                        onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                 </div>
 

@@ -9,6 +9,12 @@ const bookingSchema = new mongoose.Schema({
         index: true,
     },
 
+    movieId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Movie",
+        required: true,
+    },
+
     showId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Show",
@@ -46,6 +52,11 @@ const bookingSchema = new mongoose.Schema({
         },
     ],
 
+    seatCount: {
+        type: Number,
+        required: true,
+    },
+
     totalAmount: {
         type: Number,
         required: true,
@@ -68,6 +79,13 @@ const bookingSchema = new mongoose.Schema({
     bookingCode: {
         type: String,
         unique: true,
+        index: true,
+        required: true,
+    },
+
+    expiresAt: {
+        type: Date,
+        default: null,
         index: true,
     },
 },

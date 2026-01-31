@@ -18,6 +18,7 @@ import TheaterList from './pages/TheaterList.jsx'
 import Login from "./pages/Login.jsx";
 import Signup from './pages/Signup.jsx'
 import Food from './pages/Food.jsx'
+import Payment from './pages/Payment.jsx'
 
 function App() {
 
@@ -25,7 +26,7 @@ function App() {
 
   const hideNavbar = location.pathname.startsWith('/admin') 
   || location.pathname.includes('seat-layout')
-  || location.pathname.includes('food')
+  || location.pathname.includes('payment')
 
   return (
     <>
@@ -38,10 +39,11 @@ function App() {
         <Route path='/movies' element={<Movies/>} />
         <Route path='/movies/:id' element={<MovieDetails/>} />
         <Route path='/movies/:id/theater-list' element={<TheaterList/>} />
-        <Route path='/movie/:id/theater/seat-layout' element={<SeatLayout/>} />
+        <Route path='/movie/:id/:theaterName/seat-layout' element={<SeatLayout/>} />
         <Route path='/movie/:id/theater/food' element={<Food/>} />
         <Route path='/my-bookings' element={<MyBooking/>} />
         <Route path='/favorite' element={<Favorite/>} />
+        <Route path='/payment' element={<Payment/>} />
         <Route path='/admin/*' element={<Layout/>}>
           <Route index element={<Dashboard/>}/>
           <Route path='add-shows' element={<AddShows/>}/>

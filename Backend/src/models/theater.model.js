@@ -7,6 +7,11 @@ const theaterSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    slug: {
+        type: String,
+        index: true,
+        unique: true,
+    },
     cityId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "City",
@@ -14,14 +19,33 @@ const theaterSchema = new mongoose.Schema({
         index: true,
     },
     address: {
-        type: String,
-        required: true,
-        trim: true,
+        full: {
+            type: String,
+            required: true,
+        },
+        line1: String,
+        line2: String,
+        postcode: String,
+        state: String,
+        country: {
+            type: String,
+            default: "India",
+        },
     },
-    screensCount: {
-        type: Number,
-        required: true,
-        min: 1,
+    location: {
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point",
+        },
+        coordinates: {
+            type: [Number],
+            required: true,
+        },
+    },
+    geoapifyPlaceId: {
+        type: String,
+        index: true,
     },
     isActive: {
         type: Boolean,
@@ -35,6 +59,6 @@ const theaterSchema = new mongoose.Schema({
 
 },{timestamps: true})
 
-theaterSchema.index({ name: 1, cityId: 1 }, { unique: true });
+theaterSchema.index({ location: "2dsphere" });
 
 export const Theater = mongoose.model("Theater", theaterSchema)

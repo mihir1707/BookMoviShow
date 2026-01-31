@@ -16,12 +16,14 @@ function MovieDetails() {
     const [movie, setMovie] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [nowShowingMovies, setNowShowingMovies] = useState([]);
+    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         const fetchMovie = async () => {
             try {
                 const res = await axios.get(`http://localhost:8000/api/v1/movies/${id}`);
                 setMovie(res.data.data);
+                setIsFavorite(res.data.data.isFavorite);
             } 
             catch(err){
                 console.error("Movie fetch error", err);
@@ -50,6 +52,27 @@ function MovieDetails() {
     if(!movie){
         return <Loading />
     }
+
+    const toggleFavorite = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const res = await axios.post(`http://localhost:8000/api/v1/users/favorites/${movie._id}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setIsFavorite(res.data.isFavorite);
+        } 
+        catch (err) {
+            console.error("Favorite error", err);
+        }
+    };
+
 
 
     return (
@@ -105,8 +128,13 @@ function MovieDetails() {
                                 <span className='font-bold text-primary'>Movie release on <br/>{movie.releaseDate ? new Date(movie.releaseDate).toDateString() : '—'}</span>
                             )
                         }
-                        <button className='bg-gray-700 p-2.5 rounded-full transition cursor-pointer active:scale-95'>
-                            <Heart className={`w-5 h-5`}/>
+                        <button
+                            onClick={toggleFavorite}
+                            className='bg-gray-700 p-2.5 rounded-full transition cursor-pointer active:scale-95'
+                        >
+                            <Heart 
+                                className={`w-5 h-5 ${isFavorite ? "text-red-500 fill-red-500" : "text-white" }`}
+                            />
                         </button>
                     </div>
                 </div>
@@ -146,7 +174,7 @@ function MovieDetails() {
 
 
             {/* Crew */}
-            <p className='text-3xl font-medium mt-10'>Crew</p>
+            {/* <p className='text-3xl font-medium mt-10'>Crew</p> */}
             {/* <div className='overflow-x-auto no-scrollbar mt-8 pb-4'>
                 <div className='flex gap-5 w-max px-4'>
                     {

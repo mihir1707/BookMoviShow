@@ -22,7 +22,13 @@ const getAllMovies = asyncHandler( async(req, res) => {
 const getNowShowingMovies = asyncHandler( async(req, res) => {
 
     // lte = less than or equal to
-    const movies = await Movie.find({ isActive: true, releaseDate: { $lte: new Date() },}).sort({ releaseDate: -1 })
+    const movies = await Movie.find({ 
+        isActive: true, 
+        releaseDate: { 
+            $lte: new Date() 
+        },
+    })
+    .sort({ releaseDate: -1 })
 
     return res.status(200).json(
         new APIresponse(
@@ -40,8 +46,11 @@ const getUpcomingMovies = asyncHandler(async (req, res) => {
     // $gt greater than
     const movies = await Movie.find({
         isActive: false,
-        releaseDate: { $gt: new Date() },
-    }).sort({ releaseDate: 1 });
+        releaseDate: { 
+            $gt: new Date() 
+        },
+    })
+    .sort({ releaseDate: 1 });
 
     return res.status(200).json(
         new APIresponse(
@@ -106,9 +115,13 @@ const searchMovie = asyncHandler( async(req, res) => {
     }
 
     const movies = await Movie.find({
-        $text: { $search: q },
         isActive: true,
+        title: {
+            $regex: q,
+            $options: "i",
+        }
     })
+    .limit(10)
 
     return res.status(200).json(
         new APIresponse(
@@ -119,10 +132,31 @@ const searchMovie = asyncHandler( async(req, res) => {
     )
 })
 
+
+const getMovieBySlug = asyncHandler( async(req, res) => {
+
+    const movie = await Movie.findOne({
+        slug: req.params.slug,
+        isActive: true,
+    })
+
+    if(!movie) {
+        return res.status(404).json(
+            new APIresponse(404, null, "Movie not found")
+        );
+    }
+
+    return res.status(200).json(
+        new APIresponse(200, movie, "Movie fetched")
+    );
+
+})
+
 export {
     getAllMovies,
     getNowShowingMovies,
     getUpcomingMovies,
     getMovieById,
     searchMovie,
+    getMovieBySlug,
 }

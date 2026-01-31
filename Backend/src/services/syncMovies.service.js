@@ -1,5 +1,5 @@
 import { Movie } from "../models/movie.model.js";
-import { mapPvrMovie } from "../utils/pvr/pvrMovieMapper.js";
+import { mapPvrMovie } from "../utils/pvrMovieMapper.js";
 import pvrNowShowing from "./pvrNowShowing.js";
 import pvrUpComing from "./pvrUpComing.js";
 

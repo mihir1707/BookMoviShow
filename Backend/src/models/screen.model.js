@@ -2,18 +2,16 @@ import mongoose from "mongoose";
 
 const screenSchema = new mongoose.Schema({
 
-    theatreId: {
+    theaterId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Theatre",
+        ref: "Theater",
         required: true,
         index: true,
-        unique: true,
     },
     name: {
         type: String,
         required: true,
         trim: true,
-        unique: true,
     },
     totalSeats: {
         type: Number,
@@ -21,15 +19,13 @@ const screenSchema = new mongoose.Schema({
         min: 1,
     },
     seatLayout: {
-        type: Object,
+        type: Map,
+            of: {
+                rows: [String],
+                seatsPerRow: Number,
+                priceMultiplier: Number,
+            },
         required: true,
-        /*
-        Example:
-        {
-            A: { rows: 10, seatsPerRow: 12, price: 200 },
-            B: { rows: 5, seatsPerRow: 10, price: 150 }
-        }
-      */
     },
     isActive: {
         type: Boolean,
@@ -38,9 +34,5 @@ const screenSchema = new mongoose.Schema({
 
 },{timestamps: true})
 
-screenSchema.index(
-    { theatreId: 1, name: 1 }, 
-    { unique: true }
-)
 
 export const Screen = mongoose.model("Screen", screenSchema)

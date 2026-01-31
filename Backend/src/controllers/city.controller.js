@@ -21,7 +21,7 @@ const getAllCities = asyncHandler( async(req, res) => {
 
 const searchCity = asyncHandler( async(req, res) => {
 
-    const query = (req.query.city || req.query.query)?.trim().toLowerCase();
+    const query = (req.query.city || req.query.query)?.trim();
 
     if(!query){
         return res.status(400)
@@ -36,10 +36,13 @@ const searchCity = asyncHandler( async(req, res) => {
 
     const cities = await City.find({
         name: {
-            $regex: query,
+            $regex: `^${query}`,
             $options: "i",
         }
-    }).select("cityId name state cinemaCount").sort({ name: 1 });
+    })
+    .select("cityId name state cinemaCount")
+    .limit(10)
+    .sort({ name: 1 });
 
     return res.status(200)
     .json(
@@ -53,7 +56,15 @@ const searchCity = asyncHandler( async(req, res) => {
 
 const getCityById = asyncHandler( async(req, res) => {
 
-    const city = await City.findById(req.params.id);
+    const {id} = req.params
+
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json(
+            new APIresponse(400, {}, "Invalid city ID")
+        );
+    }
+
+    const city = await City.findById(id);
 
     if(!city){
         return res.status(404)

@@ -5,9 +5,9 @@ function Seats({
     selectedSeats,
     setSelectedSeats,
     SeatsStructure,
-    rowId,
     selectedSeatCount,
     seatType,
+    startRowIndex,
 }) {
     const seatsPerRow = SeatsStructure.reduce((a, b) => a + b, 0)
     const totalRows = Math.ceil(seatCount / seatsPerRow)
@@ -19,7 +19,7 @@ function Seats({
             return acc
         }, [])
 
-    const handleSeatClick = (seatId) => {
+    const handleSeatClick = (seatId, seatNoLabel) => {
         setSelectedSeats(prev => {
             const exists = prev.find(s => s.id === seatId)
 
@@ -29,7 +29,7 @@ function Seats({
 
             if (prev.length >= selectedSeatCount) return prev
 
-            return [...prev, { id: seatId, type: seatType }]
+            return [...prev, { id: seatId, seatNo: seatNoLabel, type: seatType }]
         })
     }
 
@@ -37,7 +37,7 @@ function Seats({
     return (
         <div className="w-full">
             {Array.from({ length: totalRows }).map((_, rowIndex) => {
-                const rowChar = String.fromCharCode(65 + rowId + rowIndex - 1)
+                const rowChar = String.fromCharCode(65 + rowIndex + startRowIndex)
                 const seatsInRow = Math.min(
                     seatsPerRow,
                     seatCount - rowIndex * seatsPerRow
@@ -56,6 +56,7 @@ function Seats({
                             <div className="flex items-center gap-2">
                                 {Array.from({ length: seatsInRow }).map((_, i) => {
                                     const seatNo = i + 1
+                                    const seatLabel = `${rowChar}${seatNo}`
                                     const seatId = `${rowChar}${seatNo}`
                                     const isSpace = gapIndexes.includes(i + 1)
                                     const isSelected = selectedSeats.some( s => s.id === seatId )
@@ -63,7 +64,7 @@ function Seats({
                                     return (
                                         <React.Fragment key={seatId}>
                                             <button
-                                                onClick={() => handleSeatClick(seatId)}
+                                                onClick={() => handleSeatClick(seatId, seatLabel)}
                                                 className={`w-8 h-8 text-xs rounded ${
                                                     isSelected
                                                         ? 'bg-green-500 text-white'

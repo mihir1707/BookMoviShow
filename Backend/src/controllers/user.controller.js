@@ -3,6 +3,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import APIerror from "../utils/APIerrors.js";
 import { User } from "../models/user.model.js";
 import APIresponse from "../utils/APIresponse.js";
+import { Movie } from "../models/movie.model.js";
 
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -30,17 +31,17 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
 const registerUser = asyncHandler( async(req, res) => {
 
-    const {name, email, username, password, phonenumber, role='USER'} = req.body;
-    // const name = req.body
-    // console.log(name)
+    const {name, email, username, password, phoneNumber, role='USER'} = req.body;
 
     if(
-        [name, email, username, password, phonenumber].some((field)=>field?.trim()==="")
+        [name, email, username, password, phoneNumber].some((field)=>field?.trim()==="")
     ){
         throw new APIerror(400, 'All fields are required')
     }
 
-    if(!/^\d{10}$/.test(String(phonenumber))) {
+    console.log(name, email, username, password, phoneNumber)
+
+    if(!/^\d{10}$/.test(String(phoneNumber))) {
         throw new APIerror(400, "Invalid phone number");
     }
 
@@ -61,7 +62,7 @@ const registerUser = asyncHandler( async(req, res) => {
         email,
         username,
         password,
-        phonenumber,
+        phoneNumber,
         role,
     })
 
@@ -76,7 +77,7 @@ const registerUser = asyncHandler( async(req, res) => {
         new APIresponse(
             201,
             createdUser,
-            "User registered Sucessfully",
+            "User registered Successfully",
         )
     )
 
@@ -254,7 +255,7 @@ const updateAccountDetails = asyncHandler( async(req, res) => {
 
     const updateFields = {};
 
-    ["username", "name", "email", "phonenumber"].forEach(field => {
+    ["username", "name", "email", "phoneNumber"].forEach(field => {
         if (req.body[field]) updateFields[field] = req.body[field];
     });
 
@@ -278,8 +279,63 @@ const updateAccountDetails = asyncHandler( async(req, res) => {
             "Account details updated successfully"
         )
     )
+})
+
+
+const toggleFavoriteMovie = asyncHandler( async(req, res) => {
+
+    const { movieId } = req.params;
+    const userId = req.user._id;
+
+    if(!mongoose.Types.ObjectId.isValid(movieId)){
+        return res.status(400).json(
+            new APIresponse(400, null, "Invalid movie ID")
+        );
+    }
+
+    const movie = await Movie.findById(movieId);
+
+    if(!movie){
+        return res.status(404).json(
+            new APIresponse(404, null, "Movie not found")
+        );
+    }
+
+    const user = await User.findById(userId);
+
+    const isFavorite = user.favoriteMovies.includes(movieId);
+
+    if(isFavorite){
+        user.favoriteMovies.pull(movieId);
+        await user.save();
+        return res.status(200).json(
+            new APIresponse(200, null, "Movie removed from favorites")
+        );
+    }
+
+    user.favoriteMovies.push(movieId);
+    await user.save();
+
+    return res.status(200).json(
+        new APIresponse(200, null, "Movie added to favorites")
+    );
 
 })
+
+const getFavoriteMovies = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id)
+        .populate("favoriteMovies");
+
+    return res.status(200).json(
+        new APIresponse(
+            200,
+            user.favoriteMovies,
+            user.favoriteMovies.length
+                ? "Favorite movies fetched"
+                : "No favorite movies"
+        )
+    );
+});
 
 export {
     registerUser,
@@ -289,4 +345,6 @@ export {
     getCurrentUser,
     changeCurrentPassword,
     updateAccountDetails,
+    toggleFavoriteMovie,
+    getFavoriteMovies,
 }

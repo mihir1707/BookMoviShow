@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MoviesShowData } from "../assets/ShowData";
+import { MoviesShowData } from "../assets/ShowData.js";
 
 function TicketSelectCard({ onClose, onConfirm, seatsType }) {
     const [selected, setSelected] = useState(1);
@@ -8,7 +8,12 @@ function TicketSelectCard({ onClose, onConfirm, seatsType }) {
         1: "🚲", 2: "🛵", 3: "🛺", 4: "🚕", 5: "🚗", 6: "🚙", 7: "🚐", 8: "🚐", 9: "🚎", 10: "🚎",
     };
 
-    const prices = MoviesShowData[0].prices;
+    const priceMap = {};
+    MoviesShowData[0].screens.forEach(screen => {
+        screen.seats.forEach(seat => {
+            priceMap[seat.type] = seat.price;
+        });
+    });
 
     return (
         <div
@@ -44,7 +49,7 @@ function TicketSelectCard({ onClose, onConfirm, seatsType }) {
                         seatsType.map((type) => (
                             <div key={type} className="text-center">
                                 <p className="text-sm text-gray-500">{type}</p>
-                                <p className="font-semibold">{prices[type]}</p>
+                                <p className="font-semibold">₹{priceMap[type]}</p>
                                 <p className="text-xs text-green-600 font-medium">AVAILABLE</p>
                             </div>
                         ))
