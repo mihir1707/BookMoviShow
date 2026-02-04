@@ -43,6 +43,14 @@ function Payment() {
 
     const [method, setMethod] = useState("credit");
 
+    if(!location.state){
+        return (
+            <div className="min-h-screen flex items-center justify-center text-white">
+                <p>No booking data found. Please select seats again.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-black p-5">
             <div className='grid grid-cols-[260px_1fr_320px] gap-5'>
@@ -87,7 +95,7 @@ function Payment() {
                 <div className="flex flex-col space-y-4 bg-gray-950">
                     <div className="rounded-lg p-4 flex justify-between font-semibold">
                         <span>To be Paid:</span>
-                        <span>₹726.36</span>
+                        <span>₹{totalAmount}</span>
                     </div>
 
                     <div className="rounded-xl p-6">

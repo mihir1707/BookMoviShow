@@ -4,7 +4,6 @@ import { Heart, PlayCircleIcon, StarIcon } from 'lucide-react'
 import { MoviesDetailsData } from '../assets/MoviesData.js'
 import MovieCard from '../components/MovieCard.jsx'
 import Loading from '../components/Loading.jsx'
-import { kConverter } from '../lib/kConverter.js'
 import WatchTrailer from '../components/WatchTrailer.jsx'
 import axios from 'axios'
 
@@ -86,12 +85,12 @@ function MovieDetails() {
                 <div className='relative flex flex-col gap-3 justify-center'>
                     <h1 className='text-4xl font-semibold max-w-96 text-balance'>{movie.title}</h1>
                     
-                    <div className='border-2 p-2 flex items-center gap-2 text-xl bg-gray-950'>
+                    {/* <div className='border-2 p-2 flex items-center gap-2 text-xl bg-gray-950'>
                         <StarIcon className='w-5 h-5 text-yellow-400 fill-yellow-400'/>
                         {
                             movie.rating?.imdb ? `${Number(movie.rating.imdb).toFixed(1)}/10 (${kConverter(movie.rating.votes)}+ Votes)` : "—"
                         }
-                    </div>
+                    </div> */}
 
                     <div className='flex flex-row'>
                         <span className=''>{ movie.runtime ? movie.runtime : "—" }</span>

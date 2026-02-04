@@ -20,7 +20,7 @@ export const mapGeoapifyToTheater = (place, cityId, adminId) => {
 
         location: {
             type: "Point",
-            coordinates: [lng, lat], // ✅ CORRECT
+            coordinates: [lng, lat],
         },
 
         geoapifyPlaceId: place.properties.place_id,

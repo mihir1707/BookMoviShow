@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema({
-    
+
     bookingId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Booking",
@@ -12,7 +12,7 @@ const paymentSchema = new mongoose.Schema({
     amount: {
         type: Number,
         required: true,
-        min: 0,
+        min: 1,
     },
 
     currency: {
@@ -20,9 +20,14 @@ const paymentSchema = new mongoose.Schema({
         default: "INR",
     },
 
+    gatewayOrderId: {
+        type: String,
+        index: true,
+    },
+
     paymentMethod: {
         type: String,
-        enum: ["UPI", "CARD", "NET_BANKING", "WALLET"],
+        enum: ["UPI", "CARD", "NET_BANKING"],
         required: true,
     },
 
@@ -32,6 +37,15 @@ const paymentSchema = new mongoose.Schema({
         default: "CREATED",
         index: true,
     },
+
+    failureReason: {
+        type: String,
+    },
+
+    refundId: {
+        type: String,
+    },
+
 
     transactionId: {
         type: String,
@@ -44,7 +58,7 @@ const paymentSchema = new mongoose.Schema({
         default: "RAZORPAY",
     },
 
-},{ timestamps: true, }
+}, { timestamps: true, }
 );
 
 export const Payment = mongoose.model("Payment", paymentSchema);

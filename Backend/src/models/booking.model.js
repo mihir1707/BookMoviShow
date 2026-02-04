@@ -15,39 +15,24 @@ const bookingSchema = new mongoose.Schema({
         required: true,
     },
 
-    showId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Show",
-        required: true,
-        index: true,
-    },
-
     theatreId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Theatre",
         required: true,
     },
 
-    screenId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Screen",
-        required: true,
-    },
-
     seats: [
         {
-            seatId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Seat",
-                required: true,
-            },
             seatNumber: {
                 type: String,
                 required: true,
+                trim: true,
+                uppercase: true,
             },
             price: {
                 type: Number,
                 required: true,
+                min: 0,
             },
         },
     ],
@@ -88,9 +73,16 @@ const bookingSchema = new mongoose.Schema({
         default: null,
         index: true,
     },
+
 },
 { timestamps: true, }
 );
+
+bookingSchema.index({
+    movieId: 1,
+    theatreId: 1,
+    bookingStatus: 1,
+});
 
 bookingSchema.index({ userId: 1, createdAt: -1 });
 

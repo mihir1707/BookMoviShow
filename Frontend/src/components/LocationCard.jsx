@@ -123,14 +123,14 @@ function LocationCard({ onClose }) {
             <div
                 ref={modalRef} 
                 onClick={(e) => e.stopPropagation()}
-                className='bg-white w-200 rounded-lg pl-2 pr-2 relative'
+                className='bg-stone-900 w-250 rounded-lg pl-2 pr-2 relative'
             >
 
-                <div className='flex items-center gap-3 px-4 py-3 rounded-md mt-2 border-2 border-black'>
-                    <Search size={18} className="text-black"/>
+                <div className='flex items-center gap-3 px-4 py-3 rounded-md mt-2 border-2 border-white'>
+                    <Search size={18} className=""/>
                     <input
                         placeholder="Search for your city"
-                        className="w-full outline-none text-black"
+                        className="w-full outline-none "
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                     />
@@ -144,10 +144,10 @@ function LocationCard({ onClose }) {
                                     <div 
                                         key={c._id}
                                         onClick={() => selectCity(c.name)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                        className="px-4 py-2 cursor-pointer hover:bg-black"
                                     >
                                         <p 
-                                            className="font-medium text-xs text-black"
+                                            className="font-medium text-md"
                                         >
                                             {c.name}
                                         </p>
@@ -184,9 +184,9 @@ function LocationCard({ onClose }) {
                     Detect my location
                 </button>
 
-                <hr className="my-3 text-black w-full" />
+                <hr className="my-3 text-white w-full" />
 
-                <p className='text-center text-black mb-5'>Popular Cities</p>
+                <p className='text-center mb-5'>Popular Cities</p>
 
                 <div className='grid grid-cols-10 gap-2'>
                     {cities.map((c) => (
@@ -195,7 +195,6 @@ function LocationCard({ onClose }) {
                                 city={c}
                                 onSelect={selectCity}
                             />
-                            <p className="text-sm text-black">{c.name}</p>
                         </div>
                     ))}
                 </div>

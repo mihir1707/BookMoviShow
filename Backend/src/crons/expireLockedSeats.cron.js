@@ -1,55 +1,24 @@
 import cron from 'node-cron'
-import { SeatAvailability } from '../models/seatAvailability.model.js'
-
+import { Booking } from "../models/booking.model.js";
 const expireLockedSeatsJob = cron.schedule("* * * * *", async() => {
     try{
-
         const now = new Date()
-
-        const expiredSeats = await SeatAvailability.find({
-            status: "LOCKED",
-            lockedUntil: {
-                $lte: now,
-            },
-        })
-
-        if(expiredSeats.length === 0) return;
-
-        const bookingIds = expiredSeats.map(seat => seat.bookingId).filter(Boolean)
-
-        await SeatAvailability.updateMany(
+        const expiredBookings = await Booking.updateMany(
             {
-                _id: {
-                    $in: expiredSeats.map(s => s._id)
-                }
+                bookingStatus: "PENDING",
+                expiresAt: { $lte: now },
             },
             {
                 $set: {
-                    status: "AVAILABLE",
-                    bookingId: null,
-                    lockedUntil: null,
-                }
-            }
-        )
-
-        if(bookingIds.length>0){
-            await Booking.updateMany(
-                {
-                    _id: {
-                        $in: bookingIds,
-                    },
-                    bookingStatus: "PENDING",
+                    bookingStatus: "FAILED",
                 },
-                {
-                    $set: {
-                        bookingStatus: "FAILED",
-                    }
-                }
-            )
+            }
+        );
+        if (expiredBookings.modifiedCount > 0) {
+            console.log(
+                `[CRON] Expired bookings marked as FAILED: ${expiredBookings.modifiedCount}`
+            );
         }
-
-        console.log(`[CRON] Expired seats released: ${expiredSeats.length}`);
-
     }
     catch(error){
         console.error("[CRON] expireLockedSeats error:", error);

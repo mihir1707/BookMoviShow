@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronDown, MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react'
 import LocationCard from './LocationCard';
+import ProfileCard from './ProfileCard';
 
 function Navbar() {
 
@@ -37,13 +38,6 @@ function Navbar() {
             window.removeEventListener("city-changed", handleCityChange);
         };
     }, []);
-
-
-    const getUserInitial = () => {
-        if (!user) return "";
-        return user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase();
-    };
-
 
     useEffect(() => {
         const handleScroll = () => {
@@ -90,21 +84,13 @@ function Navbar() {
                 {
                     !user ? (
                         <button
-                            onClick={() => {
-                                window.dispatchEvent(new Event("open-login-modal"));
-                            }}
+                            onClick={() => navigate('/login')}
                             className='px-4 py-1 sm:px-7 sm:py-2 bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer'
                         >
                             Login
                         </button>
                     ) : (
-                        <div
-                            onClick={() => navigate('/my-bookings')}
-                            className='w-10 h-10 flex items-center justify-center rounded-full bg-primary text-black font-bold text-lg cursor-pointer hover:bg-primary-dull'
-                            title={user.name || user.email}
-                        >
-                            {getUserInitial()}
-                        </div>
+                        <ProfileCard user={user}/>
                     )
                 }
             </div>

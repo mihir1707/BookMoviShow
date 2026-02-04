@@ -27,14 +27,16 @@ function App() {
   const hideNavbar = location.pathname.startsWith('/admin') 
   || location.pathname.includes('seat-layout')
   || location.pathname.includes('payment')
+  || location.pathname === '/login' 
+  || location.pathname === '/signup';
 
   return (
     <>
       <Toaster/>
       {!hideNavbar && <Navbar/>}
-      {!hideNavbar && <Login/>}
-      {!hideNavbar && <Signup/>}
       <Routes>
+        <Route path='/login' element={<Login/>} />
+        <Route path='/signup' element={<Signup/>} />
         <Route path='/' element={<Home/>} />
         <Route path='/movies' element={<Movies/>} />
         <Route path='/movies/:id' element={<MovieDetails/>} />

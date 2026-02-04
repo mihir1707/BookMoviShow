@@ -65,7 +65,7 @@ function Seats({
                                         <React.Fragment key={seatId}>
                                             <button
                                                 onClick={() => handleSeatClick(seatId, seatLabel)}
-                                                className={`w-8 h-8 text-xs rounded ${
+                                                className={`w-8 h-8 text-xs rounded cursor-pointer ${
                                                     isSelected
                                                         ? 'bg-green-500 text-white'
                                                         : 'bg-gray-700 text-white'

@@ -12,7 +12,6 @@ const MONGODB_URL = process.env.MONGODB_URL + "/bookMovie";
 const DAYS = 4;
 const SHOW_CONFIG = MoviesShowData[0];
 
-// ------------------ helpers ------------------
 const parseTimeToMinutes = (timeStr) => {
     const [time, meridian] = timeStr.split(" ");
     let [hour, minute] = time.split(":").map(Number);
@@ -23,21 +22,19 @@ const parseTimeToMinutes = (timeStr) => {
     return hour * 60 + minute;
 };
 
-// ------------------ main seeder ------------------
 const seedAllRunningMoviesShows = async () => {
     await mongoose.connect(MONGODB_URL);
-    console.log("✅ MongoDB connected");
+    console.log("MongoDB connected");
 
     const movies = await Movie.find({ isActive: true });
     const theaters = await Theater.find({ isActive: true });
     const screens = await Screen.find({ isActive: true });
 
     if (!movies.length || !theaters.length || !screens.length) {
-        console.log("❌ Movies / theaters / screens missing");
+        console.log("Movies / theaters / screens missing");
         process.exit(0);
     }
 
-    // group screens by theater
     const screensByTheater = screens.reduce((acc, screen) => {
         const key = screen.theaterId.toString();
         acc[key] ||= [];
@@ -60,7 +57,6 @@ const seedAllRunningMoviesShows = async () => {
                 for (let i = 0; i < theaterScreens.length; i++) {
                     const screen = theaterScreens[i];
 
-                    // 🔥 match by screen number (NOT index modulo)
                     const screenConfig = SHOW_CONFIG.screens.find(
                         (s) => s.screenNo === i + 1
                     );
@@ -86,7 +82,6 @@ const seedAllRunningMoviesShows = async () => {
                                     startTimeMinutes,
                                     startTimeLabel: time,
 
-                                    // ✅ seat-level pricing stored per show
                                     seatPricing: screenConfig.seats.map((seat) => ({
                                         type: seat.type,
                                         price: seat.price,
