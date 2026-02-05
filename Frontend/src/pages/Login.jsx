@@ -4,10 +4,12 @@ import { FcGoogle } from "react-icons/fc";
 import { FaMicrosoft, FaFacebookF, FaTwitter } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
 
     const navigate = useNavigate();
+    const { setUser } = useAuth();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -39,6 +41,9 @@ export default function Login() {
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", refreshToken);
             localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("loginTime", Date.now());
+
+            setUser(user);
 
             alert("Login successful");
             navigate("/"); // redirect after login
@@ -47,7 +52,7 @@ export default function Login() {
             console.error(err);
 
             if(err.response?.status === 401){
-                setError("Invalid credentials");
+                setError("Invalid email or password");
             } 
             else if(err.response?.status === 404){
                 setError("User not found");
@@ -80,19 +85,19 @@ export default function Login() {
                 </p>
 
                 <div className="flex gap-3 mb-5">
-                    <button className="flex-1 flex items-center justify-center gap-2 border rounded-lg py-2">
+                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2">
                         <FcGoogle size={20} />
                     </button>
 
-                    <button className="flex-1 flex items-center justify-center gap-2 border rounded-lg py-2">
+                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2">
                         <FaMicrosoft size={18} color="#00A4EF" />
                     </button>
 
-                    <button className="flex-1 flex items-center justify-center gap-2 border rounded-lg py-2">
+                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2">
                         <FaFacebookF size={18} color="#1877F2" />
                     </button>
 
-                    <button className="flex-1 flex items-center justify-center gap-2 border rounded-lg py-2">
+                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2">
                         <FaTwitter size={18} color="#1DA1F2" />
                     </button>
                 </div>
@@ -151,7 +156,7 @@ export default function Login() {
                 <button
                     onClick={handleLogin}
                     disabled={loading}
-                    className="w-full py-2 rounded-lg bg-primary text-black font-medium hover:bg-primary-dull transition"
+                    className="w-full py-2 rounded-lg bg-primary text-black font-medium hover:bg-primary-dull transition cursor-pointer"
                 >
                     {loading ? "Logging in..." : "Login"}
                 </button>

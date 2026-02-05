@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 function Seats({
     seatCount,
@@ -8,6 +8,7 @@ function Seats({
     selectedSeatCount,
     seatType,
     startRowIndex,
+    lockedSeats = [],
 }) {
     const seatsPerRow = SeatsStructure.reduce((a, b) => a + b, 0)
     const totalRows = Math.ceil(seatCount / seatsPerRow)
@@ -19,7 +20,16 @@ function Seats({
             return acc
         }, [])
 
+    const normalizedLockedSeats = useMemo(() => {
+        return lockedSeats.map(seat =>
+            typeof seat === "string"
+                ? seat.toUpperCase()
+                : seat?.seatNumber?.toUpperCase()
+        );
+    }, [lockedSeats]);
+
     const handleSeatClick = (seatId, seatNoLabel) => {
+        if(normalizedLockedSeats.includes(seatId.toUpperCase())) return;
         setSelectedSeats(prev => {
             const exists = prev.find(s => s.id === seatId)
 
@@ -60,16 +70,21 @@ function Seats({
                                     const seatId = `${rowChar}${seatNo}`
                                     const isSpace = gapIndexes.includes(i + 1)
                                     const isSelected = selectedSeats.some( s => s.id === seatId )
+                                    const isLocked = lockedSeats.includes(seatId);
 
                                     return (
                                         <React.Fragment key={seatId}>
                                             <button
                                                 onClick={() => handleSeatClick(seatId, seatLabel)}
-                                                className={`w-8 h-8 text-xs rounded cursor-pointer ${
-                                                    isSelected
-                                                        ? 'bg-green-500 text-white'
-                                                        : 'bg-gray-700 text-white'
-                                                }`}
+                                                className={`w-8 h-8 text-xs rounded cursor-pointer 
+                                                    ${
+                                                        isLocked
+                                                            ? 'bg-green-600 text-white cursor-not-allowed'
+                                                            : isSelected 
+                                                            ? 'bg-red-500 text-white' 
+                                                            : 'bg-gray-700 text-white'
+                                                    }`
+                                                }
                                             >
                                                 {seatNo}
                                             </button>

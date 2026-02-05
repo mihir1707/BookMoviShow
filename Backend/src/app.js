@@ -27,7 +27,7 @@ import movieRouter from './routes/movie.router.js'
 import paymentRouter from './routes/payment.router.js'
 import adminMovieRouter from './routes/admin.movie.router.js'
 import adminRouter from './routes/admin.router.js'
-import bookingRouter from './routes/booking,router.js'
+import bookingRouter from './routes/booking.router.js'
 import theatreRoutes from "./routes/theatre.router.js";
 
 
@@ -37,7 +37,7 @@ app.use('/api/v1/cities', cityRouter)
 app.use('/api/v1/payment', paymentRouter)
 app.use('/api/v1/admin/movies', adminMovieRouter)
 app.use('/api/v1/admin/payments/revenue', adminRouter)
-app.use('api/v1/booking', bookingRouter)
+app.use('/api/v1/booking', bookingRouter)
 app.use("/api/v1/theatres", theatreRoutes);
 
 

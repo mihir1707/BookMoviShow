@@ -4,12 +4,15 @@ import APIerror from "../utils/APIerrors.js";
 import APIresponse from "../utils/APIresponse.js";
 import { Booking } from "../models/booking.model.js";
 import crypto from "crypto";
+import { console } from "inspector";
 
 const LOCK_TIME = 10
 
 const createBooking = asyncHandler( async(req, res) => {
 
-    const {movieId, theatreId, seats} = req.body
+    const { movieId, theatreId, screenNo, showTime, showDate, seats } = req.body;
+
+    console.log(movieId)
 
     if (!movieId || !theatreId) {
         throw new APIerror(400, "Movie and theatre are required");
@@ -18,6 +21,8 @@ const createBooking = asyncHandler( async(req, res) => {
     if (!seats || seats.length === 0) {
         throw new APIerror(400, "No seats selected");
     }
+
+    const seatNumbers = seats.map(seat => seat.seatNumber);
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -44,18 +49,23 @@ const createBooking = asyncHandler( async(req, res) => {
         );
 
         const booking = await Booking.create(
-            [{
-                userId: req.user._id,
-                movieId,
-                theatreId,
-                seats,
-                seatCount: seats.length,
-                totalAmount,
-                bookingStatus: "PENDING",
-                bookingCode: `BMS-${crypto.randomBytes(4).toString("hex").toUpperCase()}`,
-            }],
-            { session }
-        );
+        [{
+            userId: req.user._id,
+            movieId,
+            theatreId,
+            screenNo,
+            showTime,
+            showDate,
+            seats,
+            seatCount: seats.length,
+            totalAmount,
+            bookingStatus: "PENDING",
+            bookingCode: `BMS-${crypto.randomBytes(4).toString("hex").toUpperCase()}`,
+            expiresAt: new Date(Date.now() + LOCK_TIME * 60 * 1000),
+        }],
+        { session }
+);
+
 
         await session.commitTransaction();
 
@@ -75,6 +85,41 @@ const createBooking = asyncHandler( async(req, res) => {
     finally{
         session.endSession();
     }
+
+})
+
+
+const lockedSeat = asyncHandler( async(req, res) => {
+
+    const { movieId, theatreId, screenNo, showTime, showDate } = req.query;
+
+    if (!movieId || !theatreId || !screenNo || !showTime || !showDate) {
+        return res.status(400).json({
+            success: false,
+            message: "Missing required fields",
+        });
+    }
+
+    const bookings = await Booking.find({
+        movieId: movieId,
+        theatreId: theatreId,
+        screenNo,
+        showTime,
+        showDate,
+        bookingStatus: { $in: ["PENDING", "CONFIRMED"] },
+        $or: [
+            { expiresAt: null },
+            { expiresAt: { $gt: new Date() } }
+        ]
+    }).select("seats");
+
+    const lockedSeats = bookings.flatMap(booking =>
+        booking.seats.map(seat => seat.seatNumber)
+    );
+
+    return res.status(200).json(
+        new APIresponse(200, lockedSeats, "Locked seats fetched successfully")
+    );
 
 })
 
@@ -150,4 +195,5 @@ export {
     confirmBooking,
     cancelBooking,
     getMyBookings,
+    lockedSeat,
 }

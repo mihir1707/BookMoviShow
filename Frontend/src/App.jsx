@@ -17,8 +17,9 @@ import ListBookings from './pages/Admin/ListBookings.jsx'
 import TheaterList from './pages/TheaterList.jsx'
 import Login from "./pages/Login.jsx";
 import Signup from './pages/Signup.jsx'
-import Food from './pages/Food.jsx'
 import Payment from './pages/Payment.jsx'
+import Releases from './pages/Releases.jsx'
+import UpdateProfile from './pages/UpdateProfile.jsx'
 
 function App() {
 
@@ -41,11 +42,13 @@ function App() {
         <Route path='/movies' element={<Movies/>} />
         <Route path='/movies/:id' element={<MovieDetails/>} />
         <Route path='/movies/:id/theater-list' element={<TheaterList/>} />
+        {/* <Route path='/theater-list' element={<TheaterList/>} /> */}
+        <Route path='/releases' element={<Releases/>} />
         <Route path='/movie/:id/:theaterName/seat-layout' element={<SeatLayout/>} />
-        <Route path='/movie/:id/theater/food' element={<Food/>} />
         <Route path='/my-bookings' element={<MyBooking/>} />
         <Route path='/favorite' element={<Favorite/>} />
         <Route path='/payment' element={<Payment/>} />
+        <Route path='/profile' element={<UpdateProfile/>} />
         <Route path='/admin/*' element={<Layout/>}>
           <Route index element={<Dashboard/>}/>
           <Route path='add-shows' element={<AddShows/>}/>
@@ -53,7 +56,7 @@ function App() {
           <Route path='list-bookings' element={<ListBookings/>}/>
         </Route>
       </Routes>
-      {!hideNavbar && <hr className='border-2'></hr>}
+      {!hideNavbar && <hr className='border-2 mt-10'></hr>}
       {!hideNavbar && <Footer/>}
     </>
   )

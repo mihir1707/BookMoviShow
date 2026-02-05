@@ -3,7 +3,7 @@ import { cities } from '../lib/cities'
 import CityCard from './CityCard'
 import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import getDistanceKm from '../lib/getDistance.js'
+// import getDistanceKm from '../lib/getDistance.js'
 
 function LocationCard({ onClose }) {
 
@@ -21,38 +21,38 @@ function LocationCard({ onClose }) {
     }, []);
 
 
-    useEffect( () => {
-        if(city.trim().length<2){
+    useEffect(() => {
+        if (city.trim().length < 2) {
             setResults([])
             setLoading(false)
             return
         }
 
-        const timer = setTimeout( async() => {
-            try{
+        const timer = setTimeout(async () => {
+            try {
                 setLoading(true)
                 const res = await axios.get(
                     "http://localhost:8000/api/v1/cities/search",
-                    {params: {city}}
+                    { params: { city } }
                 );
                 setResults(res.data.data || []);
             }
-            catch(error){
+            catch (error) {
                 console.error("City search error:", error);
                 setResults([]);
             }
-            finally{
+            finally {
                 setLoading(false)
             }
-        },300)
+        }, 300)
 
         return () => clearTimeout(timer)
 
-    },[city])
+    }, [city])
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if(modalRef.current && !modalRef.current.contains(e.target)) {
+            if (modalRef.current && !modalRef.current.contains(e.target)) {
                 onClose()
             }
         }
@@ -71,40 +71,53 @@ function LocationCard({ onClose }) {
 
         navigator.geolocation.getCurrentPosition(
             async ({ coords }) => {
-                const {latitude, longitude} = coords
+                try {
+                    const { latitude, longitude } = coords;
 
-                let nearestCity = null
-                let minDistance = Infinity
+                    const res = await axios.get(
+                        "https://nominatim.openstreetmap.org/reverse",
+                        {
+                            params: {
+                                lat: latitude,
+                                lon: longitude,
+                                format: "json",
+                            },
+                        }
+                    );
 
-                allCities.forEach(ct=> {
-                    if(!ct.lat || !ct.lng) return;
+                    const address = res.data.address || {};
+                    const detectedCity =
+                        address.city ||
+                        address.town ||
+                        address.village ||
+                        address.state;
 
-                    const dist = getDistanceKm(
-                        latitude,
-                        longitude,
-                        parseFloat(ct.lat),
-                        parseFloat(ct.lng),
-                    )
-
-                    if(dist<minDistance){
-                        minDistance=dist
-                        nearestCity=ct
+                    if (!detectedCity) {
+                        alert("Unable to detect city");
+                        return;
                     }
 
-                })
+                    const matchedCity = allCities.find(
+                        (c) =>
+                            c.name.toLowerCase() === detectedCity.toLowerCase()
+                    );
 
-                if(!nearestCity){
-                    alert("Unable to detect nearby city");
-                    return;
+                    if (!matchedCity) {
+                        alert(`City "${detectedCity}" not available`);
+                        return;
+                    }
+
+                    selectCity(matchedCity.name);
+
+                } catch (error) {
+                    console.error("Location detection failed", error);
+                    alert("Unable to detect location");
                 }
-
-                selectCity(nearestCity.name)
-
             },
             () => alert("Location permission denied")
-        )
-
+        );
     };
+
 
     const selectCity = (cityName) => {
         localStorage.setItem("userCity", cityName);
@@ -121,13 +134,13 @@ function LocationCard({ onClose }) {
         <div className="fixed inset-70 bg-black/60 flex items-center justify-center">
 
             <div
-                ref={modalRef} 
+                ref={modalRef}
                 onClick={(e) => e.stopPropagation()}
                 className='bg-stone-900 w-250 rounded-lg pl-2 pr-2 relative'
             >
 
                 <div className='flex items-center gap-3 px-4 py-3 rounded-md mt-2 border-2 border-white'>
-                    <Search size={18} className=""/>
+                    <Search size={18} className="" />
                     <input
                         placeholder="Search for your city"
                         className="w-full outline-none "
@@ -141,18 +154,18 @@ function LocationCard({ onClose }) {
                         <div className='border mt-2 rounded-md max-h-52 overflow-y-auto'>
                             {
                                 results.map((c) => (
-                                    <div 
+                                    <div
                                         key={c._id}
                                         onClick={() => selectCity(c.name)}
                                         className="px-4 py-2 cursor-pointer hover:bg-black"
                                     >
-                                        <p 
+                                        <p
                                             className="font-medium text-md"
                                         >
                                             {c.name}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            {c.state} 
+                                            {c.state}
                                             {/* • {c.cinemaCount} cinemas */}
                                         </p>
                                     </div>
@@ -180,7 +193,7 @@ function LocationCard({ onClose }) {
                     onClick={detectLocation}
                     className="flex items-center gap-2 text-red-500 mt-4 text-md cursor-pointer"
                 >
-                    <Crosshair size={16}/>
+                    <Crosshair size={16} />
                     Detect my location
                 </button>
 

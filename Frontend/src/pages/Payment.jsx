@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom';
 import { MoviesShowData } from "../assets/ShowData.js";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Payment() {
 
     const location = useLocation();
 
     const {
+        bookingId,
         movieTitle,
         theaterName,
         selectedDateLabel,
@@ -39,6 +42,42 @@ function Payment() {
         const seat = screenData?.seats?.find(s => s.type === type);
         return seat?.price || 0;
     };
+
+    const navigate = useNavigate();
+
+    const handlePaymentSuccess = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            if (!bookingId) {
+                alert("Booking ID missing");
+                return;
+            }
+
+            const paymentId = "PAY_" + Date.now();
+
+            await axios.post(
+                "http://localhost:8000/api/v1/bookings/confirm",
+                {
+                    bookingId,
+                    paymentId,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            alert("Payment Successful");
+
+            navigate("/my-bookings");
+
+        } catch (error) {
+            alert(error.response?.data?.message || "Payment failed");
+        }
+    };
+
 
 
     const [method, setMethod] = useState("credit");
@@ -283,10 +322,13 @@ function Payment() {
                         <span>₹120.36</span>
                     </div> */}
 
-                    <div className="flex justify-between font-bold text-base border-t pt-3">
-                        <span>To be Paid</span>
-                        <span>₹{totalAmount}</span>
-                    </div>
+                    <button
+                        onClick={handlePaymentSuccess}
+                        className="w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg"
+                    >
+                        Verify & Pay ₹{totalAmount}
+                    </button>
+
                 </div>
 
             </div>

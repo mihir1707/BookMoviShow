@@ -68,6 +68,21 @@ const bookingSchema = new mongoose.Schema({
         required: true,
     },
 
+    screenNo: {
+        type: Number,
+        required: true,
+    },
+
+    showTime: {
+        type: String,
+        required: true,
+    },
+
+    showDate: {
+        type: String,
+        required: true,
+    },
+
     expiresAt: {
         type: Date,
         default: null,

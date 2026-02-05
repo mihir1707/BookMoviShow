@@ -60,6 +60,7 @@ function ShowCard({ theaters, id, selectedDateIndex, selectedDateLabel }) {
                                                 <ShowTImeBlock
                                                     key={`${screen._id}-${index}`}
                                                     time={time}
+                                                    theatreId={theater._id}
                                                     screenNo={screen.screenNo}
                                                     theaterName={theater.name}
                                                     id={id}

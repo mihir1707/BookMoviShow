@@ -131,8 +131,6 @@ const loginUser = asyncHandler( async(req, res) => {
 
 })
 
-
-
 const logoutUser = asyncHandler( async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
@@ -309,7 +307,11 @@ const toggleFavoriteMovie = asyncHandler( async(req, res) => {
         user.favoriteMovies.pull(movieId);
         await user.save();
         return res.status(200).json(
-            new APIresponse(200, null, "Movie removed from favorites")
+            new APIresponse(
+                200,
+                { isFavorite: false },
+                "Movie removed from favorites"
+            )
         );
     }
 
@@ -317,9 +319,12 @@ const toggleFavoriteMovie = asyncHandler( async(req, res) => {
     await user.save();
 
     return res.status(200).json(
-        new APIresponse(200, null, "Movie added to favorites")
+        new APIresponse(
+            200,
+            { isFavorite: true },
+            "Movie added to favorites"
+        )
     );
-
 })
 
 const getFavoriteMovies = asyncHandler(async (req, res) => {

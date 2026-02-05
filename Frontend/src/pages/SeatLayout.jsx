@@ -17,6 +17,7 @@ function SeatLayout() {
         selectedTime = "",
         seatType = [],
         screenNo,
+        theatreId,
     } = location.state || {}
 
     const decodedTheaterName = decodeURIComponent(theaterName)
@@ -25,6 +26,91 @@ function SeatLayout() {
     const [isOpen, setIsOpen] = useState(true)
     const [seatCount, setSeatCount] = useState(1)
     const [selectedSeats, setSelectedSeats] = useState([])
+    const [lockedSeats, setLockedSeats] = useState([]);
+
+    const createBooking = async () => {
+        try {
+            const token = localStorage.getItem("accessToken");
+
+            console.log("TOKEN:", token);
+
+            if (!token) {
+                alert("Please login to continue booking")
+                navigate("/login")
+                return
+            }
+
+            const formattedSeats = selectedSeats.map(seat => ({
+                seatNumber: seat.seatNo,
+                seatType: seat.type,
+                price: getSeatPrice(seat.type),
+            }));
+
+            const res = await axios.post(
+                "http://localhost:8000/api/v1/booking",
+                {
+                    movieId: id,
+                    theatreId: theatreId,
+                    screenNo: screenNo,
+                    showTime: selectedTime,
+                    showDate: selectedDateLabel,
+                    seats: formattedSeats,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            navigate("/payment", {
+                state: {
+                    bookingId: res.data.data._id,
+                    movieTitle,
+                    theaterName: decodedTheaterName,
+                    selectedDateLabel,
+                    selectedTime,
+                    screenNo,
+                    selectedSeats,
+                    totalAmount,
+                },
+            })
+
+        }
+        catch (error) {
+            alert(error.response?.data?.message || "Booking failed");
+        }
+    }
+
+    useEffect(() => {
+        const fetchLockedSeats = async () => {
+            try {
+                const res = await axios.get(
+                    `http://localhost:8000/api/v1/booking/locked-seats`,
+                    {
+                        params: {
+                            movieId: id,
+                            theatreId,
+                            screenNo,
+                            showTime: selectedTime,
+                            showDate: selectedDateLabel,
+                        },
+                    }
+                );
+
+                console.log(res.data)
+
+                setLockedSeats(res.data?.data || []);
+            } catch (err) {
+                console.error("Failed to fetch locked seats", err);
+            }
+        };
+
+        if(id && theatreId && screenNo && selectedTime && selectedDateLabel) {
+            fetchLockedSeats();
+        }
+    }, [id, theatreId, screenNo, selectedTime, selectedDateLabel]);
+
 
     useEffect(() => {
         axios
@@ -154,6 +240,7 @@ function SeatLayout() {
                                 selectedSeatCount={seatCount}
                                 seatType={type}
                                 startRowIndex={startRow}
+                                lockedSeats={lockedSeats}
                             />
                         </div>
                     )
@@ -184,20 +271,7 @@ function SeatLayout() {
                 <div className="fixed bottom-0 left-0 right-0 bg-black p-4 flex justify-center z-50">
                     <button
                         className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-10 py-3 rounded-lg font-semibold"
-                        onClick={() =>
-                            navigate("/payment", {
-                                state: {
-                                    movieTitle,
-                                    theaterName: decodedTheaterName,
-                                    selectedDateLabel,
-                                    selectedTime,
-                                    screenNo,
-                                    selectedSeats,
-                                    seatCount,
-                                    totalAmount,
-                                },
-                            })
-                        }
+                        onClick={createBooking}
                     >
                         Pay ₹{totalAmount}
                     </button>

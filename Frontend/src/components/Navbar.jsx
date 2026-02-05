@@ -3,22 +3,16 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ChevronDown, MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react'
 import LocationCard from './LocationCard';
 import ProfileCard from './ProfileCard';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function Navbar() {
 
+    const navigate = useNavigate();
+
+    const { user, loading } = useAuth();
+
     const [open, setOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false)
-    const [user] = useState(() => {
-        try{
-            const storedUser = localStorage.getItem("user");
-            return storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
-        }
-        catch{
-            return null;
-        }
-    });
-
-    const navigate = useNavigate()
 
     const [showNavbar, setShowNavbar] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
@@ -26,6 +20,7 @@ function Navbar() {
     const [currentCity, setCurrentCity] = useState(
         localStorage.getItem("userCity") || "Select City"
     );
+
 
     useEffect(() => {
         const handleCityChange = (e) => {
@@ -46,7 +41,7 @@ function Navbar() {
             if (currentScrollY > lastScrollY && currentScrollY > 80) {
                 setShowNavbar(false)
             }
-            else{
+            else {
                 setShowNavbar(true)
             }
 
@@ -74,25 +69,25 @@ function Navbar() {
                 <XIcon className='md:hidden absolute top-6 right-6 w-6 h-6 cursor-pointer' onClick={() => setIsOpen(!isOpen)} />
                 <Link onClick={() => { scrollTo(0, 0); setIsOpen(false) }} to='/' className='hover:text-rose-700'>Home</Link>
                 <Link onClick={() => { scrollTo(0, 0); setIsOpen(false) }} to='/movies' className='hover:text-rose-700'>Movies</Link>
-                <Link onClick={() => { scrollTo(0, 0); setIsOpen(false) }} to='/theater-list' className='hover:text-rose-700'>Theaters</Link>
-                <Link onClick={() => { scrollTo(0, 0); setIsOpen(false) }} to='/' className='hover:text-rose-700'>Releases</Link>
+                {/* <Link onClick={() => { scrollTo(0, 0); setIsOpen(false) }} to='/theater-list' className='hover:text-rose-700'>Theaters</Link> */}
+                <Link onClick={() => { scrollTo(0, 0); setIsOpen(false) }} to='/releases' className='hover:text-rose-700'>Releases</Link>
                 <Link onClick={() => { scrollTo(0, 0); setIsOpen(false) }} to='/favorite' className='hover:text-rose-700'>Favorites</Link>
             </div>
 
             <div className='flex items-center gap-8'>
                 <SearchIcon className='max-md:hidden w-6 h-6 cursor-pointer' />
-                {
+                {!loading && (
                     !user ? (
                         <button
                             onClick={() => navigate('/login')}
-                            className='px-4 py-1 sm:px-7 sm:py-2 bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer'
+                            className='px-4 cursor-pointer py-1 sm:px-7 sm:py-2 bg-primary hover:bg-primary-dull transition rounded-full font-medium'
                         >
                             Login
                         </button>
                     ) : (
-                        <ProfileCard user={user}/>
+                        <ProfileCard user={user} />
                     )
-                }
+                )}
             </div>
 
             <button

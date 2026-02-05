@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function ShowTImeBlock({ time, screenNo, theaterName, id, selectedDateIndex, selectedDateLabel, seats = [] }) {
+function ShowTImeBlock({ time, theatreId, screenNo, theaterName, id, selectedDateIndex, selectedDateLabel, seats = [] }) {
 
     const navigate = useNavigate()
 
@@ -15,6 +15,7 @@ function ShowTImeBlock({ time, screenNo, theaterName, id, selectedDateIndex, sel
                         showId: `${id}-${time}`,
                         screenNo,
                         theaterName,
+                        theatreId,
                         selectedDateIndex,
                         selectedDateLabel,
                         selectedTime: time,
