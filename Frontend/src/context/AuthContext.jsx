@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
 
     const clearSession = () => {
         localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
         localStorage.removeItem("loginTime");
         setUser(null);
     };
@@ -22,6 +21,7 @@ export const AuthProvider = ({ children }) => {
 
             if (!token || !loginTime || Date.now() - loginTime > ONE_DAY) {
                 clearSession();
+                setLoading(false);
                 return;
             }
 
@@ -35,9 +35,7 @@ export const AuthProvider = ({ children }) => {
                 }
             );
 
-            const userData = res.data.data;
-            setUser(userData);
-            localStorage.setItem("user", JSON.stringify(userData));
+            setUser(res.data.data);
         } catch (error) {
             if (error.response?.status === 401) {
                 clearSession();
@@ -74,11 +72,17 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    useEffect(() => {
+        checkAuth();
+    }, []);
+
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
+        <AuthContext.Provider value={{ user, setUser, isAuthenticated: !!user, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    return useContext(AuthContext);
+};

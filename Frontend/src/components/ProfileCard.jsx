@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function ProfileCard({ user }) {
 
     const navigate = useNavigate();
+    const { logout } = useAuth();
+
     const [open, setOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -28,10 +31,9 @@ function ProfileCard({ user }) {
             return user.email?.charAt(0).toUpperCase() || "";
         };
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/login");
-        window.location.reload();
+    const handleLogout = async () => {
+        await logout();
+        navigate("/");
     };
 
     return (

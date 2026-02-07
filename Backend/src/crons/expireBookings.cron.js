@@ -1,25 +1,38 @@
 import cron from "node-cron";
 import { Booking } from "../models/booking.model.js";
+import { Payment } from "../models/payment.model.js";
 
 const expireBookingsJob = cron.schedule(
     "* * * * *",
     async () => {
         try {
-            const result = await Booking.updateMany(
-                {
-                    bookingStatus: "PENDING",
-                    expiresAt: { $lt: new Date() },
-                },
-                {
-                    $set: { bookingStatus: "EXPIRED" },
-                }
-            );
+            const expiredBookings = await Booking.find({
+                bookingStatus: "PENDING",
+                expiresAt: { $lt: new Date() },
+            });
 
-            if (result.modifiedCount > 0) {
-                console.log(
-                    `Expired ${result.modifiedCount} unpaid bookings`
+            for (const booking of expiredBookings) {
+                booking.bookingStatus = "EXPIRED";
+                booking.expiresAt = null;
+                await booking.save();
+
+                await Payment.updateMany(
+                    {
+                        bookingId: booking._id,
+                        status: "CREATED",
+                    },
+                    {
+                        $set: { status: "FAILED" },
+                    }
                 );
             }
+
+            if (expiredBookings.length > 0) {
+                console.log(
+                    `Expired ${expiredBookings.length} unpaid bookings`
+                );
+            }
+
         } catch (error) {
             console.error(
                 "Error while expiring bookings:",
@@ -28,7 +41,7 @@ const expireBookingsJob = cron.schedule(
         }
     },
     {
-        scheduled: false,
+        scheduled: true,
     }
 );
 

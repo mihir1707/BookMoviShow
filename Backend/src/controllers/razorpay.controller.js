@@ -41,7 +41,7 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
     }
 
     const order = await razorpay.orders.create({
-        amount: booking.totalAmount * 100, // paise
+        amount: booking.totalAmount * 100,
         currency: "INR",
         receipt: `booking_${booking._id}`,
     });
@@ -74,11 +74,25 @@ const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     const payment = await Payment.findOne({
         bookingId,
         razorpayOrderId: razorpay_order_id,
-        status: "CREATED",
     });
 
     if (!payment) {
         throw new APIerror(404, "Payment record not found");
+    }
+
+    if (payment.status === "SUCCESS") {
+        return res.status(200).json(
+            new APIresponse(200, {}, "Payment already verified")
+        );
+    }
+
+    const booking = await Booking.findOne({
+        _id: bookingId,
+        userId: req.user._id,
+    });
+
+    if (!booking) {
+        throw new APIerror(404, "Booking not found");
     }
 
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
@@ -97,7 +111,6 @@ const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     payment.razorpaySignature = razorpay_signature;
     await payment.save();
 
-    const booking = await Booking.findById(bookingId);
     booking.bookingStatus = "CONFIRMED";
     booking.paymentId = payment._id;
     booking.expiresAt = null;

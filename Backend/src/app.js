@@ -33,7 +33,7 @@ import razorpayRouter from "./routes/razorpay.router.js";
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/movies', movieRouter)
 app.use('/api/v1/cities', cityRouter)
-app.use('/api/v1/payment', paymentRouter)
+app.use('/api/v1/payments', paymentRouter)
 app.use('/api/v1/booking', bookingRouter)
 app.use("/api/v1/theatres", theatreRoutes);
 app.use("/api/v1/razorpay", razorpayRouter);

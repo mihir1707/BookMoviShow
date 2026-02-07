@@ -11,12 +11,16 @@ const LOCK_TIME = 10
 
 const createBooking = asyncHandler(async (req, res) => {
 
+    if (!req.user || !req.user._id) {
+        throw new APIerror(401, "Unauthorized");
+    }
+
     const { movieId, theatreId, screenNo, showTime, showDate, seats } = req.body;
 
     // console.log(movieId)
 
-    if (!movieId || !theatreId) {
-        throw new APIerror(400, "Movie and theatre are required");
+    if (!movieId || !theatreId || !screenNo || !showTime || !showDate) {
+        throw new APIerror(400, "Missing required fields");
     }
 
     if (!seats || seats.length === 0) {
@@ -135,6 +139,10 @@ const lockedSeat = asyncHandler(async (req, res) => {
 
 const confirmBooking = asyncHandler(async (req, res) => {
 
+    if (!req.user || !req.user._id) {
+        throw new APIerror(401, "Unauthorized");
+    }
+
     const { bookingId, paymentId } = req.body
 
     if (!bookingId || !paymentId) {
@@ -161,6 +169,12 @@ const confirmBooking = asyncHandler(async (req, res) => {
         throw new APIerror(404, "Payment record not found");
     }
 
+    if (booking.bookingStatus === "CONFIRMED") {
+        return res.status(200).json(
+            new APIresponse(200, booking, "Booking already confirmed")
+        );
+    }
+
     payment.status = "SUCCESS";
     payment.razorpayPaymentId = paymentId;
     await payment.save();
@@ -177,6 +191,10 @@ const confirmBooking = asyncHandler(async (req, res) => {
 
 
 const cancelBooking = asyncHandler(async (req, res) => {
+
+    if (!req.user || !req.user._id) {
+        throw new APIerror(401, "Unauthorized");
+    }
 
     const { bookingId } = req.params;
 
@@ -205,6 +223,10 @@ const cancelBooking = asyncHandler(async (req, res) => {
 
 
 const getMyBookings = asyncHandler(async (req, res) => {
+
+    if (!req.user || !req.user._id) {
+        throw new APIerror(401, "Unauthorized");
+    }
 
     const bookings = await Booking.find({
         userId: req.user._id

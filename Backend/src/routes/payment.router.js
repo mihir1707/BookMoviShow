@@ -9,4 +9,4 @@ router.route('/user').get(verifyJWT, getMyPayments)
 router.route('/:id').get(verifyJWT, getPaymentById)
 
 
-export default router
+export default router;

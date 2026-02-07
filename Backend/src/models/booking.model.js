@@ -50,7 +50,7 @@ const bookingSchema = new mongoose.Schema({
 
     bookingStatus: {
         type: String,
-        enum: ["PENDING", "CONFIRMED", "CANCELLED", "FAILED"],
+        enum: ["PENDING", "CONFIRMED", "FAILED", "EXPIRED", "CANCELLED"],
         default: "PENDING",
         index: true,
     },
@@ -98,17 +98,6 @@ bookingSchema.index({
     theatreId: 1,
     bookingStatus: 1,
 });
-
-bookingSchema.index(
-    { expiresAt: 1 },
-    {
-        expireAfterSeconds: 0,
-        partialFilterExpression: {
-            bookingStatus: "PENDING",
-        },
-    }
-);
-
 
 bookingSchema.index({ userId: 1, createdAt: -1 });
 

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Heart, PlayCircleIcon, StarIcon } from 'lucide-react'
-import { MoviesDetailsData } from '../assets/MoviesData.js'
 import MovieCard from '../components/MovieCard.jsx'
 import Loading from '../components/Loading.jsx'
 import WatchTrailer from '../components/WatchTrailer.jsx'

@@ -9,6 +9,12 @@ const createPayment = asyncHandler(async (req, res) => {
 
     const { bookingId, paymentMethod } = req.body
 
+    if (!req.user || !req.user._id) {
+        return res.status(401).json(
+            new APIresponse(401, {}, "Unauthorized")
+        );
+    }
+
     if (!bookingId || !paymentMethod) {
         return res.status(400)
             .json(
@@ -28,7 +34,7 @@ const createPayment = asyncHandler(async (req, res) => {
         );
     }
 
-    if (booking.userId.toString() !== req.user._id.toString()) {
+    if (!booking.userId || booking.userId.toString() !== req.user._id.toString()) {
         return res.status(403).json(
             new APIresponse(403, {}, "Unauthorized payment attempt")
         );
@@ -68,6 +74,12 @@ const getPaymentById = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
 
+    if (!req.user || !req.user._id) {
+        return res.status(401).json(
+            new APIresponse(401, {}, "Unauthorized")
+        );
+    }
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json(
             new APIresponse(400, null, "Invalid payment ID")
@@ -77,7 +89,7 @@ const getPaymentById = asyncHandler(async (req, res) => {
 
     const payment = await Payment.findById(id).populate({
         path: "bookingId",
-        select: "seats totalAmount status createdAt",
+        select: "seats totalAmount status createdAt userId",
     });
 
     if (!payment) {
@@ -90,7 +102,10 @@ const getPaymentById = asyncHandler(async (req, res) => {
         );
     }
 
-    if (payment.bookingId.userId.toString() !== req.user._id.toString()) {
+    if (
+        !payment.bookingId ||
+        payment.bookingId.userId.toString() !== req.user._id.toString()
+    ) {
         return res.status(403).json(
             new APIresponse(403, null, "Unauthorized access")
         );
@@ -107,6 +122,12 @@ const getPaymentById = asyncHandler(async (req, res) => {
 
 
 const getMyPayments = asyncHandler(async (req, res) => {
+
+    if (!req.user || !req.user._id) {
+        return res.status(401).json(
+            new APIresponse(401, {}, "Unauthorized")
+        );
+    }
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
