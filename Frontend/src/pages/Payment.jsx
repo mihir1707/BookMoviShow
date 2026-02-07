@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MoviesShowData } from "../assets/ShowData.js";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 function Payment() {
 
     const location = useLocation();
+    const navigate = useNavigate();
 
     const {
         bookingId,
@@ -18,6 +18,17 @@ function Payment() {
         selectedSeats = [],
         totalAmount,
     } = location.state || {};
+
+    const [method, setMethod] = useState("credit");
+    const [loading, setLoading] = useState(false);
+
+    if (!location.state || !bookingId) {
+        return (
+            <div className="min-h-screen flex items-center justify-center text-white">
+                <p>No booking data found. Please select seats again.</p>
+            </div>
+        );
+    }
 
     const screenData = MoviesShowData[0]?.screens?.find(
         s => s.screenNo === screenNo
@@ -43,25 +54,20 @@ function Payment() {
         return seat?.price || 0;
     };
 
-    const navigate = useNavigate();
 
-    const handlePaymentSuccess = async () => {
+    const handlePayment = async () => {
         try {
-            const token = localStorage.getItem("token");
+            setLoading(true);
 
-            if (!bookingId) {
-                alert("Booking ID missing");
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Please login again");
                 return;
             }
 
-            const paymentId = "PAY_" + Date.now();
-
-            await axios.post(
-                "http://localhost:8000/api/v1/bookings/confirm",
-                {
-                    bookingId,
-                    paymentId,
-                },
+            const orderRes = await axios.post(
+                "http://localhost:8000/api/v1/razorpay/create-order",
+                { bookingId },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -69,26 +75,57 @@ function Payment() {
                 }
             );
 
-            alert("Payment Successful");
+            const { key, orderId, amount, currency } = orderRes.data.data;
 
-            navigate("/my-bookings");
+            const options = {
+                key,
+                amount,
+                currency,
+                name: "Movie Ticket Booking",
+                description: "Ticket Payment",
+                order_id: orderId,
 
+                handler: async function (response) {
+                    try {
+                        await axios.post(
+                            "http://localhost:8000/api/v1/razorpay/verify",
+                            {
+                                bookingId,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                            },
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            }
+                        );
+
+                        alert("Payment Successful 🎉");
+                        navigate("/my-bookings");
+                    } catch (err) {
+                        alert(
+                            err?.response?.data?.message ||
+                            "Payment verification failed"
+                        );
+                    }
+                },
+
+                theme: {
+                    color: "#f59e0b",
+                },
+            };
+
+            const razorpay = new window.Razorpay(options);
+            razorpay.open();
         } catch (error) {
-            alert(error.response?.data?.message || "Payment failed");
+            alert(error?.response?.data?.message || "Payment failed");
+        } finally {
+            setLoading(false);
         }
     };
 
-
-
-    const [method, setMethod] = useState("credit");
-
-    if(!location.state){
-        return (
-            <div className="min-h-screen flex items-center justify-center text-white">
-                <p>No booking data found. Please select seats again.</p>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-black p-5">
@@ -131,122 +168,22 @@ function Payment() {
                     </div>
                 </div>
 
-                <div className="flex flex-col space-y-4 bg-gray-950">
-                    <div className="rounded-lg p-4 flex justify-between font-semibold">
-                        <span>To be Paid:</span>
-                        <span>₹{totalAmount}</span>
-                    </div>
+                <div className="bg-gray-950 rounded-xl p-6">
+                    <h3 className="font-semibold mb-4 capitalize">
+                        Pay via {method.replace("_", " ")}
+                    </h3>
 
-                    <div className="rounded-xl p-6">
+                    <button
+                        disabled={loading}
+                        onClick={handlePayment}
+                        className="cursor-pointer w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg disabled:opacity-60"
+                    >
+                        {loading ? "Processing..." : `Verify & Pay ₹${totalAmount}`}
+                    </button>
 
-                        {/* CREDIT / DEBIT CARD */}
-                        {(method === "credit" || method === "debit") && (
-                            <>
-                                <h3 className="font-semibold mb-4">
-                                    Pay via {method === "credit" ? "Credit Card" : "Debit Card"}
-                                </h3>
-
-                                <input
-                                    className="w-full border rounded-lg p-3 mb-4"
-                                    placeholder="Enter Card Number"
-                                />
-
-                                <div className="grid grid-cols-3 gap-4 mb-4">
-                                    <input className="border rounded-lg p-3" placeholder="MM" />
-                                    <input className="border rounded-lg p-3" placeholder="YY" />
-                                    <input className="border rounded-lg p-3" placeholder="CVV" />
-                                </div>
-
-                                <input
-                                    className="w-full border rounded-lg p-3 mb-4"
-                                    placeholder="Name on the card"
-                                />
-
-                                <label className="flex items-center gap-2 text-sm mb-6">
-                                    <input type="checkbox" />
-                                    Securely save this card for future use
-                                </label>
-
-                                <button className="w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg">
-                                    Verify & Pay
-                                </button>
-                            </>
-                        )}
-
-                        {/* UPI */}
-                        {method === "upi" && (
-                            <>
-                                <h3 className="font-semibold mb-4">UPI</h3>
-
-                                <input
-                                    className="w-full border rounded-lg p-3 mb-4"
-                                    placeholder="UPI ID"
-                                />
-
-                                <button className="w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg">
-                                    Verify & Pay
-                                </button>
-
-                                <p className="text-xs text-gray-400 mt-2">
-                                    A collect request notification will be sent to this UPI ID
-                                </p>
-                            </>
-                        )}
-
-                        {/* NET BANKING */}
-                        {method === "netbanking" && (
-                            <>
-                                <h3 className="font-semibold mb-4">Net Banking</h3>
-
-                                <select className="w-full border rounded-lg p-3 mb-4 text-white">
-                                    <option className='text-black'>Select Bank</option>
-                                    <option className='text-black'>HDFC Bank</option>
-                                    <option className='text-black'>ICICI Bank</option>
-                                    <option className='text-black'>SBI</option>
-                                    <option className='text-black'>Axis Bank</option>
-                                </select>
-
-                                <label className="flex items-center gap-2 text-sm mb-4">
-                                    <input type="checkbox" />
-                                    I have read and accepted the{" "}
-                                    <span className="underline cursor-pointer">
-                                        Terms & Conditions
-                                    </span>
-                                </label>
-
-                                <button className="w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg">
-                                    Pay
-                                </button>
-                            </>
-                        )}
-
-                        {/* GIFT CARD */}
-                        {method === "gift" && (
-                            <>
-                                <h3 className="font-semibold mb-4">Gift Card</h3>
-
-                                <input
-                                    className="w-full border rounded-lg p-3 mb-4"
-                                    placeholder="Enter Card Number"
-                                />
-
-                                <input
-                                    className="w-full border rounded-lg p-3 mb-4"
-                                    placeholder="Enter PIN"
-                                />
-
-                                <p className="text-xs text-gray-400 mb-4">
-                                    Gift card will not be refunded for cancellation
-                                </p>
-
-                                <button className="w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg">
-                                    Apply
-                                </button>
-                            </>
-                        )}
-
-                    </div>
-
+                    <p className="text-xs text-gray-400 mt-3">
+                        This is a demo payment flow. No real money is charged.
+                    </p>
                 </div>
 
                 <div className="bg-gray-950 rounded-xl p-4 space-y-4">
@@ -267,16 +204,6 @@ function Payment() {
                     <div>
                         <p className="font-semibold text-sm mb-1">Seat Info</p>
                         <p className="text-sm">SCREEN {screenNo}</p>
-                        {/* <div className="flex gap-2 mt-2">
-                            {selectedSeats.map(seat => (
-                                <span
-                                    key={seat.id || seat.label}
-                                    className="bg-amber-200 text-black px-3 py-1 rounded-md text-sm"
-                                >
-                                    {seat.label || seat.seatNo}
-                                </span>
-                            ))}
-                        </div> */}
                     </div>
 
                     <div className="text-sm space-y-2 border-t pt-3">
@@ -301,38 +228,15 @@ function Payment() {
                         })}
                     </div>
 
-
-                    {/* <div className="text-sm space-y-1">
-                        <div className="flex justify-between">
-                            <span>Net Price (3 Tickets)</span>
-                            <span>₹508.44</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>GST</span>
-                            <span>₹91.56</span>
-                        </div>
-                        <div className="flex justify-between font-semibold">
-                            <span>Total Ticket Price</span>
-                            <span>₹600.00</span>
-                        </div>
-                    </div> */}
-
-                    {/* <div className="flex justify-between text-sm">
-                        <span>Taxes & Fees</span>
-                        <span>₹120.36</span>
-                    </div> */}
-
-                    <button
-                        onClick={handlePaymentSuccess}
-                        className="w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg"
-                    >
-                        Verify & Pay ₹{totalAmount}
-                    </button>
+                    <div className="flex justify-between font-semibold border-t pt-3">
+                        <span>Total</span>
+                        <span>₹{totalAmount}</span>
+                    </div>
 
                 </div>
 
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }
 

@@ -5,12 +5,15 @@ const AuthContext = createContext(null);
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem("user");
-        return savedUser ? JSON.parse(savedUser) : null;
-    });
-
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const clearSession = () => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("loginTime");
+        setUser(null);
+    };
 
     const checkAuth = async () => {
         try {
@@ -23,7 +26,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             const res = await axios.get(
-                "http://localhost:8000/api/v1/users/me",
+                "http://localhost:8000/api/v1/users/current-user",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -33,10 +36,9 @@ export const AuthProvider = ({ children }) => {
             );
 
             const userData = res.data.data;
-            localStorage.setItem("user", JSON.stringify(userData));
             setUser(userData);
+            localStorage.setItem("user", JSON.stringify(userData));
         } catch (error) {
-            // only logout if truly unauthorized
             if (error.response?.status === 401) {
                 clearSession();
             }
@@ -48,14 +50,6 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         checkAuth();
     }, []);
-
-    const clearSession = () => {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
-        localStorage.removeItem("loginTime");
-        setUser(null);
-        setLoading(false);
-    };
 
     const logout = async () => {
         try {
@@ -76,6 +70,7 @@ export const AuthProvider = ({ children }) => {
             console.error("Logout error", err);
         } finally {
             clearSession();
+            setLoading(false);
         }
     };
 

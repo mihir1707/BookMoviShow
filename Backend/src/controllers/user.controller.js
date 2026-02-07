@@ -7,53 +7,55 @@ import { Movie } from "../models/movie.model.js";
 
 
 const generateAccessAndRefreshTokens = async (userId) => {
-    try{
+    try {
         const user = await User.findById(userId)
 
-        if(!user){
+        if (!user) {
             throw new APIerror(404, "User not found while generate Tokens");
         }
 
         const accessToken = user.generateAccessToken()
-        const refreshToken =  user.generateRefreshToken()
+        const refreshToken = user.generateRefreshToken()
 
         user.refreshToken = refreshToken
-        await user.save({validateBeforeSave: false})
+        await user.save({ validateBeforeSave: false })
 
-        return {accessToken, refreshToken}
+        return { accessToken, refreshToken }
 
     }
-    catch(error){
+    catch (error) {
         throw new APIerror(500, 'Something went wrong while generating refresh and access token')
     }
 }
 
 
-const registerUser = asyncHandler( async(req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
 
-    const {name, email, username, password, phoneNumber, role='USER'} = req.body;
+    const { name, email, username, password, phoneNumber } = req.body;
 
-    if(
-        [name, email, username, password, phoneNumber].some((field)=>field?.trim()==="")
-    ){
-        throw new APIerror(400, 'All fields are required')
+    if (
+        [name, email, username, password, phoneNumber]
+            .some(field => !String(field || "").trim())
+    ) {
+        throw new APIerror(400, "All fields are required");
     }
 
-    console.log(name, email, username, password, phoneNumber)
 
-    if(!/^\d{10}$/.test(String(phoneNumber))) {
+    // console.log(name, email, username, password, phoneNumber)
+
+    if (!/^\d{10}$/.test(String(phoneNumber))) {
         throw new APIerror(400, "Invalid phone number");
     }
 
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         throw new APIerror(400, "Invalid email");
     }
 
     const checkUser = await User.findOne({
-        $or: [{email}, {username}]
+        $or: [{ email }, { username }]
     })
 
-    if(checkUser){
+    if (checkUser) {
         throw new APIerror(400, 'User with email or username already exists')
     }
 
@@ -62,52 +64,51 @@ const registerUser = asyncHandler( async(req, res) => {
         email,
         username,
         password,
-        phoneNumber,
-        role,
+        phoneNumber: String(phoneNumber),
     })
 
     const createdUser = await User.findById(user._id)
 
-    if(!createdUser){
+    if (!createdUser) {
         throw new APIerror(500, 'Something went wrong while registering the user')
     }
 
-    return res.status(200)
-    .json(
-        new APIresponse(
-            201,
-            createdUser,
-            "User registered Successfully",
+    return res.status(201)
+        .json(
+            new APIresponse(
+                201,
+                createdUser,
+                "User registered Successfully",
+            )
         )
-    )
 
 })
 
 
 
-const loginUser = asyncHandler( async(req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
 
-    const {username, email, password} = req.body
+    const { username, email, password } = req.body
 
-    if(!password || (!username && !email)){
+    if (!password || (!username && !email)) {
         throw new APIerror(400, "Credentials required")
     }
 
     const user = await User.findOne({
-        $or: [{username},{email}]
+        $or: [{ username }, { email }]
     }).select("+password")
 
-    if(!user){
+    if (!user) {
         throw new APIerror(404, 'user does not exist')
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password)
 
-    if(!isPasswordValid){
+    if (!isPasswordValid) {
         throw new APIerror(401, 'Invalid user credentials')
-    } 
+    }
 
-    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id)
 
     const loggedInUser = await User.findById(user._id)
 
@@ -117,21 +118,21 @@ const loginUser = asyncHandler( async(req, res) => {
     }
 
     return res.status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-        new APIresponse(
-            201,
-            {
-                user: loggedInUser, accessToken, refreshToken,
-            },
-            "User logged In Successfully",
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new APIresponse(
+                201,
+                {
+                    user: loggedInUser, accessToken, refreshToken,
+                },
+                "User logged In Successfully",
+            )
         )
-    )
 
 })
 
-const logoutUser = asyncHandler( async(req, res) => {
+const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -147,37 +148,37 @@ const logoutUser = asyncHandler( async(req, res) => {
     }
 
     return res.status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
-    .json(
-        new APIresponse(
-            201,
-            {},
-            "User logged Out",
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(
+            new APIresponse(
+                201,
+                {},
+                "User logged Out",
+            )
         )
-    )
 
 })
 
 
 
-const refreshAccessToken = asyncHandler( async(req, res) => {
+const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const incomingRefreshToken = req.cookie?.refreshToken || req.body.refreshToken
 
-    if(!incomingRefreshToken){
+    if (!incomingRefreshToken) {
         throw new APIerror(401, 'unauthorized request')
     }
 
-    try{
+    try {
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
         const user = await User.findById(decodedToken?._id)
 
-        if(!user){
+        if (!user) {
             throw new APIerror(401, 'Invalid refresh token')
         }
 
-        if(incomingRefreshToken !== user.refreshToken){
+        if (incomingRefreshToken !== user.refreshToken) {
             throw new APIerror(401, 'Refresh Token is expire or used')
         }
 
@@ -189,21 +190,21 @@ const refreshAccessToken = asyncHandler( async(req, res) => {
         const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(user._id)
 
         return res.status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", newRefreshToken, options)
-        .json(
-            new APIresponse(
-                200,
-                {
-                    accessToken,
-                    refreshToken: newRefreshToken
-                },
-                "Access token refreshed"
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json(
+                new APIresponse(
+                    200,
+                    {
+                        accessToken,
+                        refreshToken: newRefreshToken
+                    },
+                    "Access token refreshed"
+                )
             )
-        )
 
     }
-    catch(error){
+    catch (error) {
         throw new APIerror(401, error?.message || "Invalid refresh token")
     }
 
@@ -211,45 +212,46 @@ const refreshAccessToken = asyncHandler( async(req, res) => {
 
 
 
-const changeCurrentPassword = asyncHandler( async(req, res) => {
+const changeCurrentPassword = asyncHandler(async (req, res) => {
 
-    const {oldPassword, newPassword} = req.body
+    const { oldPassword, newPassword } = req.body
     const user = await User.findById(req.user?._id).select("+password");
 
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
 
-    if(!isPasswordCorrect){
+    if (!isPasswordCorrect) {
         throw new APIerror(400, 'Invalid old password')
     }
 
     user.password = newPassword
-    await user.save({validateBeforeSave: false})
+    await user.save({ validateBeforeSave: false })
 
     return res.status(200)
-    .json(
+        .json(
+            new APIresponse(
+                200,
+                {},
+                "Password changed successfully"
+            )
+        )
+
+})
+
+
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(
         new APIresponse(
             200,
-            {},
-            "Password changed successfully"
+            req.user,
+            "current user fetched successfully"
         )
-    )
-
+    );
 })
 
 
 
-const getCurrentUser = asyncHandler( async(req, res) => {
-    return res.status(200)
-    .json(
-        200,
-        req.user,
-        "current user fetched successfully"
-    )
-})
-
-
-
-const updateAccountDetails = asyncHandler( async(req, res) => {
+const updateAccountDetails = asyncHandler(async (req, res) => {
 
     const updateFields = {};
 
@@ -270,22 +272,22 @@ const updateAccountDetails = asyncHandler( async(req, res) => {
     )
 
     return res.status(200)
-    .json(
-        new APIerror(
-            200,
-            UpdateUser,
-            "Account details updated successfully"
+        .json(
+            new APIerror(
+                200,
+                UpdateUser,
+                "Account details updated successfully"
+            )
         )
-    )
 })
 
 
-const toggleFavoriteMovie = asyncHandler( async(req, res) => {
+const toggleFavoriteMovie = asyncHandler(async (req, res) => {
 
     const { movieId } = req.params;
     const userId = req.user._id;
 
-    if(!mongoose.Types.ObjectId.isValid(movieId)){
+    if (!mongoose.Types.ObjectId.isValid(movieId)) {
         return res.status(400).json(
             new APIresponse(400, null, "Invalid movie ID")
         );
@@ -293,7 +295,7 @@ const toggleFavoriteMovie = asyncHandler( async(req, res) => {
 
     const movie = await Movie.findById(movieId);
 
-    if(!movie){
+    if (!movie) {
         return res.status(404).json(
             new APIresponse(404, null, "Movie not found")
         );
@@ -303,7 +305,7 @@ const toggleFavoriteMovie = asyncHandler( async(req, res) => {
 
     const isFavorite = user.favoriteMovies.includes(movieId);
 
-    if(isFavorite){
+    if (isFavorite) {
         user.favoriteMovies.pull(movieId);
         await user.save();
         return res.status(200).json(

@@ -90,7 +90,7 @@ const bookingSchema = new mongoose.Schema({
     },
 
 },
-{ timestamps: true, }
+    { timestamps: true, }
 );
 
 bookingSchema.index({
@@ -98,6 +98,17 @@ bookingSchema.index({
     theatreId: 1,
     bookingStatus: 1,
 });
+
+bookingSchema.index(
+    { expiresAt: 1 },
+    {
+        expireAfterSeconds: 0,
+        partialFilterExpression: {
+            bookingStatus: "PENDING",
+        },
+    }
+);
+
 
 bookingSchema.index({ userId: 1, createdAt: -1 });
 

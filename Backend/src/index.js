@@ -5,6 +5,7 @@ import startMovieSyncCron from './crons/movieSync.cron.js'
 import syncMoviesFromPVR from './services/syncMovies.service.js'
 import syncCities from './services/syncCities.service.js'
 import expireLockedSeatsJob from './crons/expireLockedSeats.cron.js'
+import expireBookingsJob from './crons/expireBookings.cron.js'
 
 dotenv.config({
     path: './.env'
@@ -15,6 +16,7 @@ connectDB()
     await syncMoviesFromPVR()
     await syncCities()
     startMovieSyncCron()
+    expireBookingsJob.start()
     expireLockedSeatsJob.start()
     app.listen(process.env.PORT || 8000, ()=>{
         console.log(`Server is running at port : ${process.env.PORT}`);

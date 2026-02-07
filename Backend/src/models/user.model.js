@@ -33,23 +33,11 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Password is required'],
-        select: false, // Do NOT include this field in query results by default
-    },
-    role: {
-        type: String,
-        trim: true,
-    },
-    avatar: {
-        type: String,
+        select: false,
     },
     refreshToken: {
         type: String,
-        select: false, // Do NOT include this field in query results by default
-    },
-    role: {
-        type: String,
-        enum: ['USER', 'ADMIN'],
-        default: 'USER',
+        select: false,
     },
     favoriteMovies: [
         {

@@ -67,7 +67,9 @@ function MovieDetails() {
         const checkFavorite = async () => {
             try {
                 const token = localStorage.getItem("accessToken");
-                if (!token) return;
+                if (!token){
+                    navigate('/login');
+                }
 
                 const res = await axios.get(
                     "http://localhost:8000/api/v1/users/favorites",

@@ -1,33 +1,34 @@
+import mongoose from "mongoose";
 import { Payment } from "../models/payment.model.js";
 import APIresponse from "../utils/APIresponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { Booking } from '../models/booking.model.js'
 
 
-const createPayment = asyncHandler( async(req, res) => {
+const createPayment = asyncHandler(async (req, res) => {
 
-    const {bookingId, paymentMethod} = req.body
+    const { bookingId, paymentMethod } = req.body
 
-    if(!bookingId || !paymentMethod){
+    if (!bookingId || !paymentMethod) {
         return res.status(400)
-        .json(
-            new APIresponse(
-                400,
-                {},
-                "BookingId and payment method are required",
+            .json(
+                new APIresponse(
+                    400,
+                    {},
+                    "BookingId and payment method are required",
+                )
             )
-        )
     }
 
     const booking = await Booking.findById(bookingId);
 
-    if(!booking){
+    if (!booking) {
         return res.status(404).json(
             new APIresponse(404, {}, "Booking not found")
         );
     }
 
-    if(booking.userId.toString() !== req.user._id.toString()) {
+    if (booking.userId.toString() !== req.user._id.toString()) {
         return res.status(403).json(
             new APIresponse(403, {}, "Unauthorized payment attempt")
         );
@@ -38,7 +39,7 @@ const createPayment = asyncHandler( async(req, res) => {
         status: { $in: ["CREATED", "SUCCESS"] },
     });
 
-    if(existingPayment){
+    if (existingPayment) {
         return res.status(409).json(
             new APIresponse(409, null, "Payment already exists for this booking")
         );
@@ -47,8 +48,10 @@ const createPayment = asyncHandler( async(req, res) => {
     const payment = await Payment.create({
         bookingId,
         amount: booking.totalAmount,
+        currency: "INR",
         paymentMethod,
-        status: "CREATED"
+        status: "CREATED",
+        gateway: "RAZORPAY",
     })
 
     return res.status(201).json(
@@ -61,36 +64,23 @@ const createPayment = asyncHandler( async(req, res) => {
 })
 
 
-const getPaymentById = asyncHandler( async(req, res) => {
+const getPaymentById = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(id)){
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json(
             new APIresponse(400, null, "Invalid payment ID")
         );
     }
 
 
-    const payment = await Payment.findById(id)
-        .populate({
-            path: "bookingId",
-            populate: [
-                {
-                    path: "showId",
-                    populate: {
-                        path: "movieId",
-                        select: "title posterUrl",
-                    },
-                },
-                {
-                    path: "seatIds",
-                    select: "seatNumber row",
-                },
-            ]
-        })
+    const payment = await Payment.findById(id).populate({
+        path: "bookingId",
+        select: "seats totalAmount status createdAt",
+    });
 
-    if(!payment){
+    if (!payment) {
         return res.status(404).json(
             new APIresponse(
                 404,
@@ -100,7 +90,7 @@ const getPaymentById = asyncHandler( async(req, res) => {
         );
     }
 
-    if(payment.bookingId.userId.toString() !== req.user._id.toString()) {
+    if (payment.bookingId.userId.toString() !== req.user._id.toString()) {
         return res.status(403).json(
             new APIresponse(403, null, "Unauthorized access")
         );
@@ -126,22 +116,14 @@ const getMyPayments = asyncHandler(async (req, res) => {
         .populate({
             path: "bookingId",
             match: { userId: req.user._id },
-            populate: [
-                {
-                    path: "showId",
-                    populate: { path: "movieId", select: "title posterUrl" },
-                },
-                {
-                    path: "seatIds",
-                    select: "seatNumber row",
-                },
-            ],
+            select: "seats totalAmount status createdAt",
         })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
-    const filteredPayments = payments.filter(p => p.bookingId !== null);
+
+    const userPayments = payments.filter(p => p.bookingId);
 
     return res.status(200).json(
         new APIresponse(
@@ -149,7 +131,7 @@ const getMyPayments = asyncHandler(async (req, res) => {
             {
                 page,
                 limit,
-                payments: filteredPayments,
+                payments: userPayments,
             },
             "User payments fetched successfully"
         )

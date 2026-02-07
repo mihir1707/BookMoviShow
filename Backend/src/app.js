@@ -25,20 +25,18 @@ import userRouter from './routes/user.router.js'
 import cityRouter from './routes/city.router.js'
 import movieRouter from './routes/movie.router.js'
 import paymentRouter from './routes/payment.router.js'
-import adminMovieRouter from './routes/admin.movie.router.js'
-import adminRouter from './routes/admin.router.js'
 import bookingRouter from './routes/booking.router.js'
 import theatreRoutes from "./routes/theatre.router.js";
+import razorpayRouter from "./routes/razorpay.router.js";
 
 
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/movies', movieRouter)
 app.use('/api/v1/cities', cityRouter)
 app.use('/api/v1/payment', paymentRouter)
-app.use('/api/v1/admin/movies', adminMovieRouter)
-app.use('/api/v1/admin/payments/revenue', adminRouter)
 app.use('/api/v1/booking', bookingRouter)
 app.use("/api/v1/theatres", theatreRoutes);
+app.use("/api/v1/razorpay", razorpayRouter);
 
 
 export default app;

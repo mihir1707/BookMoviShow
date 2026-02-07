@@ -41,10 +41,10 @@ export default function Signup() {
                 "http://localhost:8000/api/v1/users/register",
                 {
                     name,
-                    username,
                     email,
-                    phoneNumber,
+                    username,
                     password,
+                    phoneNumber,
                 },
                 {
                     withCredentials: true,
@@ -60,7 +60,7 @@ export default function Signup() {
 
             setUser(user);
 
-            alert("Account created successfully 🎉");
+            alert("Account created successfully");
             navigate("/");
         }
         catch (err) {

@@ -20,6 +20,21 @@ const paymentSchema = new mongoose.Schema({
         default: "INR",
     },
 
+    razorpayOrderId: {
+        type: String,
+        index: true,
+    },
+
+    razorpayPaymentId: {
+        type: String,
+        unique: true,
+        sparse: true,
+    },
+
+    razorpaySignature: {
+        type: String,
+    },
+
     gatewayOrderId: {
         type: String,
         index: true,
@@ -42,9 +57,12 @@ const paymentSchema = new mongoose.Schema({
         type: String,
     },
 
-    refundId: {
-        type: String,
-    },
+    refunds: [{
+        refundId: String,
+        amount: Number,
+        status: String,
+        createdAt: Date,
+    }],
 
 
     transactionId: {
