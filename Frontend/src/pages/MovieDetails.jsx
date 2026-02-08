@@ -135,13 +135,6 @@ function MovieDetails() {
                 <div className='relative flex flex-col gap-3 justify-center'>
                     <h1 className='text-4xl font-semibold max-w-96 text-balance'>{movie.title}</h1>
 
-                    {/* <div className='border-2 p-2 flex items-center gap-2 text-xl bg-gray-950'>
-                        <StarIcon className='w-5 h-5 text-yellow-400 fill-yellow-400'/>
-                        {
-                            movie.rating?.imdb ? `${Number(movie.rating.imdb).toFixed(1)}/10 (${kConverter(movie.rating.votes)}+ Votes)` : "—"
-                        }
-                    </div> */}
-
                     <div className='flex flex-row'>
                         <span className=''>{movie.runtime ? movie.runtime : "—"}</span>
                         <span className='ml-3 font-extrabold'>•</span>
@@ -155,7 +148,7 @@ function MovieDetails() {
                     <div className='flex items-center flex-wrap gap-4 mt-4'>
                         <button
                             onClick={() => setIsOpen(true)}
-                            className='flex items-center gap-2 px-7 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95'>
+                            className='flex items-center gap-2 px-7 py-3 text-black text-sm bg-primary hover:bg-primary-dull transition rounded-md font-medium cursor-pointer active:scale-95'>
                             <PlayCircleIcon className='w-5 h-5' />
                             Watch Trailer
                         </button>
@@ -168,7 +161,7 @@ function MovieDetails() {
                                         navigate(`/movies/${movie._id}/theater-list`)
                                         window.scroll(0, 0)
                                     }}
-                                    className='px-10 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-md font-medium cursor-pointer active:scale-95'
+                                    className='px-10 py-3 text-sm bg-primary text-black hover:bg-primary-dull transition rounded-md font-medium cursor-pointer active:scale-95'
                                 >
                                     Buy Tickets
                                 </a>
@@ -179,10 +172,10 @@ function MovieDetails() {
                         }
                         <button
                             onClick={toggleFavorite}
-                            className='bg-gray-700 p-2.5 rounded-full transition cursor-pointer active:scale-95'
+                            className='bg-primary p-2.5 rounded-full transition cursor-pointer active:scale-95'
                         >
                             <Heart
-                                className={`w-5 h-5 ${isFavorite ? "text-red-500 fill-red-500" : "text-white"}`}
+                                className={`w-5 h-5 ${isFavorite ? "text-white fill-red-600" : "text-white fill-white"}`}
                             />
                         </button>
                     </div>

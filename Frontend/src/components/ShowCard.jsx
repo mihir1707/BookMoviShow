@@ -28,8 +28,10 @@ function ShowCard({ theaters, id, selectedDateIndex, selectedDateLabel }) {
 
                     // <div>
                         const screen = screens[idx % screens.length]
+                        const availableTimes = screen.times.filter(isFutureShowTime)
 
                         if(!screen) return null
+                        if (availableTimes.length === 0) return null
 
                         return (
                             <div
@@ -42,16 +44,9 @@ function ShowCard({ theaters, id, selectedDateIndex, selectedDateLabel }) {
                                     {theater.name}
                                 </div>
 
-                                {/* Screen + Times */}
                                 <div className='ml-20 flex flex-col gap-4 p-5'>
-                                    {/* <p className="text-gray-400 mb-2">
-                                        {screen.screenNo}
-                                    </p> */}
 
                                     <div
-                                        // onClick={
-                                        //     () => navigate(`/movies/${id}/theater-list`)
-                                        // } 
                                         className='flex flex-row flex-wrap gap-4'>
                                         {
                                             screen.times

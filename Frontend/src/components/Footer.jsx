@@ -1,13 +1,17 @@
 import React from 'react'
-import {assets} from '../assets/assets'
+import { assets } from '../assets/assets'
 
 function Footer() {
     return (
-        <footer className="px-6 pt-8 md:px-16 lg:px-36 mt-10 w-full text-gray-300">
+        <footer className="px-6 pt-8 md:px-16 lg:px-36 mt-10 w-full text-gray-300 bg-black">
             <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-gray-500 pb-14">
                 <div className="md:max-w-96">
-                    <p className='text-4xl [-webkit-text-stroke:2px_black] font-extrabold text-white w-70 bg-primary rounded-full text-center'>BookMoviShow</p>
-                    <p className="mt-6 text-sm">
+                    <img
+                        src={assets.logo}
+                        alt="logo"
+                        className="h-15 w-auto object-contain"
+                    />
+                    <p>
                         Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
                     </p>
                     <div className="flex items-center gap-2 mt-4">

@@ -37,7 +37,7 @@ function HeroSection() {
 
     return (
         <div 
-            className='mt-20 mb-20 flex items-center justify-center gap-4 px-6 w-[180vh] h-screen bg-center bg-cover bg-no-repeat transition-all duration-1000'
+            className='mt-20 bg-black mb-20 flex items-center justify-center gap-4 px-6 w-[180vh] h-screen bg-center bg-cover bg-no-repeat transition-all duration-1000'
             style={{ 
                 backgroundImage: `url(${nowShowingMovies[currentImage].bannerUrl})`, 
                 marginLeft: "auto",

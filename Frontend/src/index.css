@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 @theme{
-    --color-primary: #BE123C;
-    --color-primary-dull: #E11D48;
+    --color-primary: #7132CA;
+    --color-primary-dull: #9A7BCF;
 }
 
 *{
@@ -14,7 +14,7 @@
 
 body{
     color: whitesmoke;
-    background-color: #090908;
+    background-color: black;
 }
 
 .no-scrollbar{

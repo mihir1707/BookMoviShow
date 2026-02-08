@@ -35,7 +35,7 @@ function TicketSelectCard({ onClose, onConfirm, seatsType }) {
                         <button
                             key={num}
                             onClick={() => setSelected(num)}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${selected === num ? "bg-red-500 text-white" : " hover:cursor-pointer"}`}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${selected === num ? "bg-primary text-white" : " hover:cursor-pointer"}`}
                         >
                             {num}
                         </button>
@@ -48,16 +48,16 @@ function TicketSelectCard({ onClose, onConfirm, seatsType }) {
                     {
                         seatsType.map((type) => (
                             <div key={type} className="text-center">
-                                <p className="text-sm text-gray-500">{type}</p>
+                                <p className="text-sm">{type}</p>
                                 <p className="font-semibold">₹{priceMap[type]}</p>
-                                <p className="text-xs text-green-600 font-medium">AVAILABLE</p>
+                                <p className="text-xs text-green-500 font-medium">AVAILABLE</p>
                             </div>
                         ))
                     }
                 </div>
 
                 <button
-                    className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold cursor-pointer"
+                    className="w-full bg-primary hover:bg-primary-dull text-black py-3 rounded-lg font-semibold cursor-pointer"
                     onClick={() => {
                         onConfirm(selected);
                         onClose();

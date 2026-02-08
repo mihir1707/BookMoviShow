@@ -81,7 +81,7 @@ function Seats({
                                                         isLocked
                                                             ? 'bg-green-600 text-white cursor-not-allowed'
                                                             : isSelected 
-                                                            ? 'bg-red-500 text-white' 
+                                                            ? 'bg-primary text-white' 
                                                             : 'bg-gray-700 text-white'
                                                     }`
                                                 }

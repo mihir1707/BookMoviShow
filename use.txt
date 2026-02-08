@@ -1,5 +1,0 @@
-razorpay for payment
-JWT
-navigator in React
-cors
-Transaction in mongodb

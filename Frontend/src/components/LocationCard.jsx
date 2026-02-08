@@ -131,7 +131,7 @@ function LocationCard({ onClose }) {
 
 
     return (
-        <div className="fixed inset-70 bg-black/60 flex items-center justify-center">
+        <div className="fixed inset-70 bg-black flex items-center justify-center">
 
             <div
                 ref={modalRef}
@@ -212,7 +212,7 @@ function LocationCard({ onClose }) {
                     ))}
                 </div>
 
-                <p className='text-center text-red-500 mt-4 mb-4 text-sm cursor-pointer'>
+                <p className='text-center text-primary mt-4 mb-4 text-sm cursor-pointer'>
                     View All Cities
                 </p>
 

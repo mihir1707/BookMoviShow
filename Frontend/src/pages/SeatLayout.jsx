@@ -270,7 +270,7 @@ function SeatLayout() {
             {selectedSeats.length === seatCount && (
                 <div className="fixed bottom-0 left-0 right-0 bg-black p-4 flex justify-center z-50">
                     <button
-                        className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-10 py-3 rounded-lg font-semibold"
+                        className="cursor-pointer bg-primary hover:bg-primary-dull text-black px-10 py-3 rounded-lg font-semibold"
                         onClick={createBooking}
                     >
                         Pay ₹{totalAmount}

@@ -28,9 +28,9 @@ function ShowTImeBlock({ time, theatreId, screenNo, theaterName, id, selectedDat
 
             {time}
 
-            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:flex bg-white shadow-xl rounded-lg p-4 gap-6 z-50">
+            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:flex bg-black border-2 border-primary text-white shadow-xl rounded-lg p-4 gap-6 z-50">
 
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45"></div>
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-black border-b-2 border-r-2 border-primary rotate-45"></div>
 
                 <div className='flex gap-5'>
                     {seats.map((seat) => {
@@ -39,10 +39,10 @@ function ShowTImeBlock({ time, theatreId, screenNo, theaterName, id, selectedDat
 
                         return (
                             <div key={seat.type} className="text-center">
-                                <p className="text-sm text-black font-semibold">
+                                <p className="text-sm font-semibold">
                                     ₹{seat.price.toFixed(2)}
                                 </p>
-                                <p className="text-xs text-black whitespace-nowrap">
+                                <p className="text-xs whitespace-nowrap">
                                     {seat.type}
                                 </p>
                                 <p className={`text-xs font-medium ${isFastFilling ? 'text-orange-400' : 'text-green-600'}`}>

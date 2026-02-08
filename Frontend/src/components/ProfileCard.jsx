@@ -40,7 +40,7 @@ function ProfileCard({ user }) {
         <div className="relative" ref={menuRef}>
             <div
                 onClick={() => setOpen(!open)}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white font-bold text-lg cursor-pointer hover:bg-primary-dull"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-black border-0 border-white font-bold text-lg cursor-pointer hover:bg-primary-dull"
                 title={user.name || user.email}
             >
                 {getUserInitial()}
@@ -51,19 +51,19 @@ function ProfileCard({ user }) {
                     <ul className="py-2 text-sm text-gray-700">
                         <li
                             onClick={() => navigate("/my-bookings")}
-                            className="px-4 py-2 hover:bg-primary-dull text-white cursor-pointer"
+                            className="px-4 py-2 hover:bg-primary-dull text-white hover:text-black cursor-pointer"
                         >
                             My Bookings
                         </li>
                         <li
                             onClick={() => navigate("/profile")}
-                            className="px-4 py-2 hover:bg-primary-dull text-white cursor-pointer"
+                            className="px-4 py-2 hover:bg-primary-dull text-white hover:text-black cursor-pointer"
                         >
                             Update Details
                         </li>
                         <li
                             onClick={handleLogout}
-                            className="px-4 py-2 hover:bg-primary-dull text-red-600 hover:text-white cursor-pointer"
+                            className="px-4 py-2 hover:bg-primary-dull text-red-600 hover:text-black cursor-pointer"
                         >
                             Logout
                         </li>

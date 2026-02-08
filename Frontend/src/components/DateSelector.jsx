@@ -51,8 +51,8 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
                             w-15 h-18.75 rounded-lg flex flex-col items-center justify-center
                             ${isDisabled
                                 ? 'cursor-not-allowed border-red-500 text-gray-400 hover:bg-red-5'
-                                : 'cursor-pointer hover:bg-gray-100 text-black'}
-                            ${isSelected && !isDisabled ? 'bg-red-500 text-white' : 'bg-white'}
+                                : 'cursor-pointer hover:bg-primary-dull text-black'}
+                            ${isSelected && !isDisabled ? 'bg-primary text-black' : 'bg-white'}
                         `}
                     >
                         <span className="text-xs font-semibold">{item.day}</span>

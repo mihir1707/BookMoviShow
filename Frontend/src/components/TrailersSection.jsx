@@ -29,7 +29,7 @@ function TrailersSection() {
     }
 
     return (
-        <div className='px-6 md:px-16 lg:px-24 xl:px-44 py-20 overflow-hidden'>
+        <div className='px-6 md:px-16 bg-black lg:px-24 xl:px-44 py-20 overflow-hidden'>
             <p className='text-gray-300 font-medium max-w-240 mx-auto text-4xl'>Trailers</p>
 
             <div className='relative mt-6 w-full max-w-240 mx-auto border-2 border-white rounded shadow-primary shadow-md'>

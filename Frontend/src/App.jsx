@@ -15,19 +15,25 @@ import Signup from './pages/Signup.jsx'
 import Payment from './pages/Payment.jsx'
 import Releases from './pages/Releases.jsx'
 import UpdateProfile from './pages/UpdateProfile.jsx'
+import GlobalEffects from "./components/GlobalEffects.jsx";
 
 function App() {
 
   const location = useLocation();
 
-  const hideNavbar = location.pathname.startsWith('/admin') 
-  || location.pathname.includes('seat-layout')
+  const hideNavbar = location.pathname.includes('seat-layout')
   || location.pathname.includes('payment')
+  || location.pathname === '/login' 
+  || location.pathname === '/signup';
+
+  const hideEffects = location.pathname.includes('seat-layout') 
+  || location.pathname.includes('payment') 
   || location.pathname === '/login' 
   || location.pathname === '/signup';
 
   return (
     <>
+      {!hideEffects && <GlobalEffects />}
       <Toaster/>
       {!hideNavbar && <Navbar/>}
       <Routes>
