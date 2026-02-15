@@ -22,7 +22,7 @@ function ShowCard({ theaters, id, selectedDateIndex, selectedDateLabel }) {
     }
 
     return (
-        <div className=' flex-wrap gap-4 items-start mt-2 bg-black'>
+        <div className='flex flex-col gap-4 sm:gap-0 items-start mt-2 bg-black'>
             {
                 theaters.map((theater, idx) => {
 
@@ -36,18 +36,18 @@ function ShowCard({ theaters, id, selectedDateIndex, selectedDateLabel }) {
                         return (
                             <div
                                 key={theater._id}
-                                className='flex items-start mt-5 gap-15'
+                                className='flex flex-col sm:flex-row items-start mt-0 sm:mt-5 gap-3 sm:gap-15 w-full sm:w-auto'
                             >
 
                                 {/* Theatre name */}
-                                <div className='ml-20 mt-5 text-white min-w-50 self-start'>
+                                <div className='text-white min-w-40 sm:min-w-50 self-start text-xs sm:text-base px-2 sm:ml-20 sm:mt-5'>
                                     {theater.name}
                                 </div>
 
-                                <div className='ml-20 flex flex-col gap-4 p-5'>
+                                <div className='ml-2 sm:ml-20 flex flex-col gap-2 sm:gap-4 p-2 sm:p-5 w-full'>
 
                                     <div
-                                        className='flex flex-row flex-wrap gap-4'>
+                                        className='flex flex-row flex-wrap gap-2 sm:gap-4'>
                                         {
                                             screen.times
                                                 .filter(time => isFutureShowTime(time))

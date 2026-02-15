@@ -39,9 +39,9 @@ function Movies() {
 
     return (
         <>
-            <div className='relative my-40 mb-60 px-6 md:px-16 lg:px-40 xl:px-44'>
-                <h1 className='text-2xl my-4'>Now Showing</h1>
-                <div className='flex flex-wrap max-sm:justify-center gap-8'>
+            <div className='relative my-20 sm:my-40 mb-40 sm:mb-60 px-3 sm:px-6 md:px-16 lg:px-40 xl:px-44'>
+                <h1 className='text-xl sm:text-2xl my-2 sm:my-4'>Now Showing</h1>
+                <div className='flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-5 md:gap-8'>
                     {
                         nowShowingMovies.map((movie) => (
                             <MovieCard key={movie._id} movie={movie} />
@@ -50,9 +50,9 @@ function Movies() {
                 </div>
             </div>
             
-            <div className='relative my-40 mb-60 px-6 md:px-16 lg:px-40 xl:px-44'>
-                <h1 className='text-2xl my-4'>Up Coming</h1>
-                <div className='flex flex-wrap max-sm:justify-center gap-8'>
+            <div className='relative my-20 sm:my-40 mb-40 sm:mb-60 px-3 sm:px-6 md:px-16 lg:px-40 xl:px-44'>
+                <h1 className='text-xl sm:text-2xl my-2 sm:my-4'>Up Coming</h1>
+                <div className='flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-5 md:gap-8'>
                     {
                         upComingMovies.map((movie)=>(
                             <MovieCard key={movie._id} movie={movie} />

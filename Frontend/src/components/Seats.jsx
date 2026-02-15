@@ -45,7 +45,7 @@ function Seats({
 
 
     return (
-        <div className="w-full">
+        <div className="w-full overflow-x-auto">
             {Array.from({ length: totalRows }).map((_, rowIndex) => {
                 const rowChar = String.fromCharCode(65 + rowIndex + startRowIndex)
                 const seatsInRow = Math.min(
@@ -56,14 +56,14 @@ function Seats({
                 return (
                     <div
                         key={rowChar}
-                        className="grid grid-cols-[80px_1fr_80px] items-center mb-4"
+                        className="grid grid-cols-[40px_1fr_40px] sm:grid-cols-[60px_1fr_60px] items-center mb-2 sm:mb-4 gap-1 sm:gap-2"
                     >
-                        <div className="flex justify-center">
+                        <div className="flex justify-center text-xs sm:text-sm">
                             {rowChar}
                         </div>
 
-                        <div className="flex justify-center">
-                            <div className="flex items-center gap-2">
+                        <div className="flex justify-center overflow-x-auto">
+                            <div className="flex items-center gap-1 sm:gap-2">
                                 {Array.from({ length: seatsInRow }).map((_, i) => {
                                     const seatNo = i + 1
                                     const seatLabel = `${rowChar}${seatNo}`
@@ -76,20 +76,21 @@ function Seats({
                                         <React.Fragment key={seatId}>
                                             <button
                                                 onClick={() => handleSeatClick(seatId, seatLabel)}
-                                                className={`w-8 h-8 text-xs rounded cursor-pointer 
+                                                className={`w-6 sm:w-8 h-6 sm:h-8 text-xs rounded cursor-pointer text-white
                                                     ${
                                                         isLocked
-                                                            ? 'bg-green-600 text-white cursor-not-allowed'
+                                                            ? 'bg-green-600 cursor-not-allowed'
                                                             : isSelected 
-                                                            ? 'bg-primary text-white' 
-                                                            : 'bg-gray-700 text-white'
+                                                            ? 'bg-primary' 
+                                                            : 'bg-gray-700'
                                                     }`
                                                 }
+                                                title={seatLabel}
                                             >
                                                 {seatNo}
                                             </button>
 
-                                            {isSpace && <div className="w-4" />}
+                                            {isSpace && <div className="w-1.5 sm:w-2" />}
                                         </React.Fragment>
                                     )
                                 })}

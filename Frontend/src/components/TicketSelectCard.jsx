@@ -17,38 +17,38 @@ function TicketSelectCard({ onClose, onConfirm, seatsType }) {
 
     return (
         <div
-            className="fixed inset-0 bg-black/0 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/0 flex items-center justify-center z-50 p-3 sm:p-4"
             onClick={onClose}
         >
             <div
-                className="bg-black w-125 rounded-xl p-6 text-center shadow-sm shadow-gray-500 border-2"
+                className="bg-black w-full max-w-xs sm:max-w-md lg:w-125 rounded-xl p-4 sm:p-6 text-center shadow-sm shadow-gray-500 border-2"
                 onClick={(e) => e.stopPropagation()}
             >
-                <h2 className="text-lg font-semibold mb-4">How many seats?</h2>
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">How many seats?</h2>
 
-                <div className="text-4xl m-5">
+                <div className="text-3xl sm:text-4xl m-3 sm:m-5">
                     {emojiMap[selected]}
                 </div>
 
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-1 sm:gap-2 flex-wrap">
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                         <button
                             key={num}
                             onClick={() => setSelected(num)}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${selected === num ? "bg-primary text-white" : " hover:cursor-pointer"}`}
+                            className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${selected === num ? "bg-primary text-white" : " hover:cursor-pointer"}`}
                         >
                             {num}
                         </button>
                     ))}
                 </div>
 
-                <hr className='border m-5'></hr>
+                <hr className='border m-3 sm:m-5'></hr>
 
-                <div className="flex justify-center gap-4 px-4 mb-5">
+                <div className="flex justify-center gap-2 sm:gap-4 px-2 sm:px-4 mb-4 sm:mb-5 flex-wrap">
                     {
                         seatsType.map((type) => (
-                            <div key={type} className="text-center">
-                                <p className="text-sm">{type}</p>
+                            <div key={type} className="text-center text-xs sm:text-sm">
+                                <p className="text-xs sm:text-sm">{type}</p>
                                 <p className="font-semibold">₹{priceMap[type]}</p>
                                 <p className="text-xs text-green-500 font-medium">AVAILABLE</p>
                             </div>
@@ -57,7 +57,7 @@ function TicketSelectCard({ onClose, onConfirm, seatsType }) {
                 </div>
 
                 <button
-                    className="w-full bg-primary hover:bg-primary-dull text-black py-3 rounded-lg font-semibold cursor-pointer"
+                    className="w-full bg-primary hover:bg-primary-dull text-black py-2 sm:py-3 rounded-lg font-semibold cursor-pointer text-sm sm:text-base"
                     onClick={() => {
                         onConfirm(selected);
                         onClose();

@@ -83,33 +83,35 @@ function TheaterList() {
 
 
     return (
-        <div className='mt-30 mb-20'>
+        <div className='mt-20 sm:mt-30 mb-10 sm:mb-20 px-3 sm:px-6 md:px-10 lg:px-15'>
             <hr className='border text-gray-700' />
 
-            <div className='m-5 ml-15'>
-                <p className='text-4xl mb-2'>{movie.title}</p>
+            <div className='m-2 sm:m-5 ml-3 sm:ml-15'>
+                <p className='text-2xl sm:text-3xl md:text-4xl mb-2'>{movie.title}</p>
 
-                <span className='text-white rounded-full border-gray-300 border pl-1 pr-1 pb-0.5'>
-                    {`Movie runtime: ${movie.runtime ? movie.runtime : "—"}`}
-                </span>
-
-                <span className='ml-5 text-white rounded-full border-gray-300 border pl-1 pr-1 pb-0.5'>
-                    {movie.censorRating}
-                </span>
-
-                {movie.genres.map((g) => (
-                    <span
-                        key={g}
-                        className='ml-5 text-white rounded-full border-gray-300 border pl-1 pr-1 pb-0.5'
-                    >
-                        {g}
+                <div className='flex flex-wrap gap-2'>
+                    <span className='text-white text-xs sm:text-sm rounded-full border-gray-300 border pl-2 pr-2 pb-0.5'>
+                        {`Movie runtime: ${movie.runtime ? movie.runtime : "—"}`}
                     </span>
-                ))}
+
+                    <span className='text-white text-xs sm:text-sm rounded-full border-gray-300 border pl-2 pr-2 pb-0.5'>
+                        {movie.censorRating}
+                    </span>
+
+                    {movie.genres.map((g) => (
+                        <span
+                            key={g}
+                            className='text-white text-xs sm:text-sm rounded-full border-gray-300 border pl-2 pr-2 pb-0.5'
+                        >
+                            {g}
+                        </span>
+                    ))}
+                </div>
             </div>
 
             <hr className='border text-gray-700' />
 
-            <div className='m-5 ml-15'>
+            <div className='m-3 sm:m-5 ml-3 sm:ml-15'>
                 <DateSelector
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}
@@ -119,12 +121,12 @@ function TheaterList() {
 
             <hr className='border text-gray-700 shadow-sm shadow-gray-700' />
 
-            <div className='m-4 flex flex-row justify-end gap-5'>
-                <p className='text-sm'>
+            <div className='m-3 sm:m-4 flex flex-wrap justify-end gap-3 sm:gap-5'>
+                <p className='text-xs sm:text-sm'>
                     <span className="w-2 h-2 mr-1 bg-green-500 rounded-full inline-block"></span>
                     AVAILABLE
                 </p>
-                <p className='text-sm'>
+                <p className='text-xs sm:text-sm'>
                     <span className="w-2 h-2 mr-1 bg-orange-400 rounded-full inline-block"></span>
                     FAST FILLING
                 </p>
@@ -132,7 +134,7 @@ function TheaterList() {
 
             <hr className='border text-gray-700' />
 
-            <div className='m-5 ml-10'>
+            <div className='m-3 sm:m-5 ml-3 sm:ml-10'>
                 <ShowCard
                     theaters={theater}
                     id={String(id)}

@@ -141,17 +141,17 @@ function Payment() {
 
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-5">
+        <div className="min-h-screen bg-black flex items-center justify-center p-3 sm:p-5">
             <div className="w-full max-w-md border-2 rounded-xl">
 
-                <div className="bg-gray-950 rounded-xl p-4 space-y-4">
-                    <h3 className="font-semibold">Booking Summary</h3>
+                <div className="bg-gray-950 rounded-xl p-3 sm:p-4 space-y-3 sm:space-y-4">
+                    <h3 className="font-semibold text-sm sm:text-base">Booking Summary</h3>
 
                     <div>
-                        <p className="font-semibold text-sm">
+                        <p className="font-semibold text-xs sm:text-sm">
                             {movieTitle}
                         </p>
-                        <p className="text-xs mt-5">
+                        <p className="text-xs mt-3 sm:mt-5">
                             {selectedDateLabel}, {selectedTime}
                         </p>
                         <p className="text-xs">
@@ -160,11 +160,11 @@ function Payment() {
                     </div>
 
                     <div>
-                        <p className="font-semibold text-sm mb-1">Seat Info</p>
-                        <p className="text-sm">SCREEN {screenNo}</p>
+                        <p className="font-semibold text-xs sm:text-sm mb-1">Seat Info</p>
+                        <p className="text-xs sm:text-sm">SCREEN {screenNo}</p>
                     </div>
 
-                    <div className="text-sm space-y-2 border-t pt-3">
+                    <div className="text-xs sm:text-sm space-y-2 border-t pt-2 sm:pt-3">
                         {Object.entries(seatTypeSummary).map(([type, data]) => {
                             const price = getSeatPrice(type);
                             const total = price * data.count;
@@ -186,7 +186,7 @@ function Payment() {
                         })}
                     </div>
 
-                    <div className="flex justify-between font-semibold border-t pt-3">
+                    <div className="flex justify-between font-semibold border-t pt-2 sm:pt-3 text-sm">
                         <span>Total</span>
                         <span>₹{totalAmount}</span>
                     </div>
@@ -194,7 +194,7 @@ function Payment() {
                     <button
                         disabled={loading}
                         onClick={handlePayment}
-                        className="cursor-pointer w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-3 rounded-lg disabled:opacity-60"
+                        className="cursor-pointer w-full bg-amber-200 hover:bg-amber-300 text-black font-bold py-2 sm:py-3 rounded-lg disabled:opacity-60 text-sm sm:text-base"
                     >
                         {loading ? "Processing..." : `Verify & Pay ₹${totalAmount}`}
                     </button>

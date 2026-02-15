@@ -31,7 +31,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
     }, [setSelectedDate, setSelectedDateLabel])
 
     return (
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
             {dates.map((item, index) => {
                 const isDisabled = index >= dates.length - 5
                 const isSelected = selectedDate === index
@@ -48,7 +48,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
                             }
                         }}
                         className={`
-                            w-15 h-18.75 rounded-lg flex flex-col items-center justify-center
+                            w-14 sm:w-15 h-16 sm:h-18.75 rounded-lg flex flex-col items-center justify-center flex-shrink-0
                             ${isDisabled
                                 ? 'cursor-not-allowed border-red-500 text-gray-400 hover:bg-red-5'
                                 : 'cursor-pointer hover:bg-primary-dull text-black'}
@@ -56,7 +56,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
                         `}
                     >
                         <span className="text-xs font-semibold">{item.day}</span>
-                        <span className="text-2xl font-bold">{item.date}</span>
+                        <span className="text-xl sm:text-2xl font-bold">{item.date}</span>
                         <span className="text-xs">{item.month}</span>
                     </div>
                 )
