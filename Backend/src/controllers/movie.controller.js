@@ -21,11 +21,17 @@ const getAllMovies = asyncHandler( async(req, res) => {
 
 const getNowShowingMovies = asyncHandler( async(req, res) => {
 
+    const today = new Date();
+
+    const eightyDaysAgo = new Date();
+    eightyDaysAgo.setDate(today.getDate() - 50);
+
     // lte = less than or equal to
     const movies = await Movie.find({ 
         isActive: true, 
         releaseDate: { 
-            $lte: new Date() 
+            $gte: eightyDaysAgo,
+            $lte: today,
         },
     })
     .sort({ releaseDate: -1 })

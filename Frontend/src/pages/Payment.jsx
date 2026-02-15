@@ -69,6 +69,7 @@ function Payment() {
                 "http://localhost:8000/api/v1/payments",
                 {
                     bookingId,
+                    paymentMethod: "razorpay",
                 },
                 {
                     headers: {
@@ -79,7 +80,9 @@ function Payment() {
 
             const orderRes = await axios.post(
                 "http://localhost:8000/api/v1/razorpay/create-order",
-                { bookingId },
+                { 
+                    bookingId 
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

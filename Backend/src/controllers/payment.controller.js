@@ -9,6 +9,8 @@ const createPayment = asyncHandler(async (req, res) => {
 
     const { bookingId, paymentMethod } = req.body
 
+    console.log(req.body, req.user);
+
     if (!req.user || !req.user._id) {
         return res.status(401).json(
             new APIresponse(401, {}, "Unauthorized")

@@ -4,6 +4,28 @@ import { useEffect, useState } from "react";
 
 const GlobalEffects = () => {
     const [effect, setEffect] = useState(null);
+    const [windowSize, setWindowSize] = useState({
+        width: window.innerWidth,
+        height: window.innerHeight
+    });
+    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const handleResize = () => setWindowSize({
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            setCursorPos({ x: e.clientX, y: e.clientY });
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
 
     useEffect(() => {
         const today = new Date();
@@ -20,26 +42,66 @@ const GlobalEffects = () => {
 
     const commonStyle = {
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         zIndex: 5,
         pointerEvents: "none",
     };
 
+    const getCursorColor = () => {
+        switch(effect) {
+            case "newyear":
+            case "winter": return "rgba(255,255,255,0.8)";
+            case "monsoon": return "rgba(30,144,255,0.8)";
+            case "summer": return "rgba(255,215,0,0.8)";
+            case "diwali": return "rgba(255,140,0,0.9)";
+            default: return "rgba(0,0,0,0.7)";
+        }
+    };
+
+    const cursorStyle = {
+        position: "fixed",
+        top: cursorPos.y + "px",
+        left: cursorPos.x + "px",
+        width: "15px",
+        height: "15px",
+        borderRadius: "50%",
+        background: getCursorColor(),
+        pointerEvents: "none",
+        transform: "translate(-50%, -50%)",
+        zIndex: 9999,
+        mixBlendMode: "difference",
+    };
+
     return (
         <>
+            <div style={cursorStyle} />
+
             {/* WINTER */}
-            {effect === "winter" && (
-                <Snowfall
-                    snowflakeCount={120}
-                    style={commonStyle}
-                />
+            {(effect === "winter" || effect === "newyear") && (
+                <>
+                    <Snowfall snowflakeCount={200} style={commonStyle} />
+                    {effect === "newyear" && (
+                        <Confetti
+                            width={windowSize.width}
+                            height={windowSize.height}
+                            numberOfPieces={100}
+                            colors={["#ffffff", "#ff006e", "#8338ec"]}
+                            style={commonStyle}
+                        />
+                    )}
+                </>
             )}
 
-            {/* MONSOON */}
+            {/* MONSOON (Rain Effect) */}
             {effect === "monsoon" && (
                 <Confetti
-                    numberOfPieces={150}
-                    gravity={0.8}
+                    width={windowSize.width}
+                    height={windowSize.height}
+                    numberOfPieces={70}
+                    wind={0.05}
                     colors={["#8ecae6", "#219ebc", "#023047"]}
                     style={commonStyle}
                 />
@@ -48,8 +110,9 @@ const GlobalEffects = () => {
             {/* SUMMER */}
             {effect === "summer" && (
                 <Confetti
-                    numberOfPieces={80}
-                    gravity={0.05}
+                    width={windowSize.width}
+                    height={windowSize.height}
+                    numberOfPieces={50}
                     colors={["#ffd166", "#fca311", "#ffb703"]}
                     style={commonStyle}
                 />
@@ -58,19 +121,10 @@ const GlobalEffects = () => {
             {/* DIWALI */}
             {effect === "diwali" && (
                 <Confetti
-                    numberOfPieces={220}
-                    gravity={0.15}
+                    width={windowSize.width}
+                    height={windowSize.height}
+                    numberOfPieces={50}
                     colors={["#ff9f1c", "#ffd60a", "#ff6f00"]}
-                    style={commonStyle}
-                />
-            )}
-
-            {/* NEW YEAR */}
-            {effect === "newyear" && (
-                <Confetti
-                    numberOfPieces={400}
-                    gravity={0.3}
-                    colors={["#ffffff", "#ff006e", "#8338ec"]}
                     style={commonStyle}
                 />
             )}
