@@ -18,7 +18,7 @@ connectDB()
     startMovieSyncCron()
     expireBookingsJob.start()
     expireLockedSeatsJob.start()
-    app.listen(process.env.PORT || 8000, ()=>{
+    app.listen(2590, ()=>{
         console.log(`Server is running at port : ${process.env.PORT}`);
     })
 })

@@ -23,6 +23,13 @@ app.get("/api/v1/health", (req, res) => {
     res.status(200).json({ status: "OK" });
 });
 
+app.get("/", (req, res) => {
+  res.send("Server running");
+});
+
+app.get("/api", (req, res) => {
+  res.send("Server running");
+});
 
 
 import userRouter from './routes/user.router.js'
