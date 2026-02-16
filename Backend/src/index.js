@@ -11,6 +11,7 @@ dotenv.config({
     path: './.env'
 })
 
+// Initialize database and cron jobs
 connectDB()
 .then( async ()=>{
     await syncMoviesFromPVR()
@@ -18,9 +19,7 @@ connectDB()
     startMovieSyncCron()
     expireBookingsJob.start()
     expireLockedSeatsJob.start()
-    app.listen(2590, ()=>{
-        console.log(`Server is running at port : ${process.env.PORT}`);
-    })
+    console.log('Database connected and crons started');
 })
 .catch((error) => {
     console.log('MongoDB connection falied !!',error);
@@ -29,3 +28,11 @@ connectDB()
 app.get("/", (req, res) => {
   res.send("Welcome to book-my-show backend API");
 });
+
+const PORT = process.env.PORT || 2590;
+app.listen(PORT, ()=>{
+    console.log(`Server is running at port : ${PORT}`);
+})
+
+// Export app for Vercel serverless functions
+export default app;
