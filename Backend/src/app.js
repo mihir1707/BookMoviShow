@@ -19,6 +19,10 @@ app.get("/health", (req, res) => {
     res.status(200).json({ status: "OK" });
 });
 
+app.get("/api/v1/health", (req, res) => {
+    res.status(200).json({ status: "OK" });
+});
+
 
 
 import userRouter from './routes/user.router.js'
