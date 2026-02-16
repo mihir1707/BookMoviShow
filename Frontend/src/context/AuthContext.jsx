@@ -8,6 +8,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     const clearSession = () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("loginTime");
@@ -26,7 +28,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             const res = await axios.get(
-                "http://localhost:8000/api/v1/users/current-user",
+                `${baseUrl}/users/current-user`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -54,7 +56,7 @@ export const AuthProvider = ({ children }) => {
             const token = localStorage.getItem("accessToken");
             if (token) {
                 await axios.post(
-                    "http://localhost:8000/api/v1/users/logout",
+                    `${baseUrl}/users/logout`,
                     {},
                     {
                         headers: {

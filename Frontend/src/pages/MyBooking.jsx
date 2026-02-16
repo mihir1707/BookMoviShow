@@ -11,10 +11,12 @@ function MyBooking() {
     const [bookings, setBookings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     const getMyBookings = async () => {
         try {
             const res = await axios.get(
-                "http://localhost:8000/api/v1/booking/myBooking",
+                `${baseUrl}/booking/myBooking`,
                 { withCredentials: true }
             );
 

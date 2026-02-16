@@ -18,6 +18,8 @@ export default function Login() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     const handleLogin = async () => {
         setError("");
 
@@ -31,7 +33,7 @@ export default function Login() {
         try {
             setLoading(true);
             const res = await axios.post(
-                "http://localhost:8000/api/v1/users/login",
+                `${baseUrl}/users/login`,
                 { email, password },
                 { withCredentials: true }
             );

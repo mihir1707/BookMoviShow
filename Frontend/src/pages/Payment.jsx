@@ -21,6 +21,8 @@ function Payment() {
 
     const [loading, setLoading] = useState(false);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     if (!location.state || !bookingId) {
         return (
             <div className="min-h-screen flex items-center justify-center text-white">
@@ -66,7 +68,7 @@ function Payment() {
             }
 
             await axios.post(
-                "http://localhost:8000/api/v1/payments",
+                `${baseUrl}/payments`,
                 {
                     bookingId,
                     paymentMethod: "razorpay",
@@ -79,7 +81,7 @@ function Payment() {
             );
 
             const orderRes = await axios.post(
-                "http://localhost:8000/api/v1/razorpay/create-order",
+                `${baseUrl}/razorpay/create-order`,
                 { 
                     bookingId 
                 },
@@ -109,7 +111,7 @@ function Payment() {
 
                 handler: async function (response) {
                     await axios.post(
-                        "http://localhost:8000/api/v1/razorpay/verify",
+                        `${baseUrl}/razorpay/verify`,
                         {
                             bookingId,
                             razorpay_order_id: response.razorpay_order_id,

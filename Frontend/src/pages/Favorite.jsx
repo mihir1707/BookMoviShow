@@ -7,11 +7,13 @@ function Favorite() {
     const [favorites, setFavorites] = useState([])
     const [loading, setLoading] = useState(true)
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
         const fetchFavorites = async () => {
             try {
                 const res = await axios.get(
-                    "http://localhost:8000/api/v1/users/favorites",
+                    `${baseUrl}/users/favorites`,
                     {
                         withCredentials: true 
                     }

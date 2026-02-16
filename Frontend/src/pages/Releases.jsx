@@ -11,10 +11,12 @@ function Releases() {
     const [currentTrailer, setCurrentTrailer] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
         const fetchNowShowing = async () => {
             try {
-                const res = await axios.get("http://localhost:8000/api/v1/movies/now-showing")
+                const res = await axios.get(`${baseUrl}/movies/now-showing`)
                 setNowShowingMovies(res.data.data || []);
             }
             catch (error) {

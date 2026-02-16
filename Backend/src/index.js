@@ -7,11 +7,11 @@ import syncCities from './services/syncCities.service.js'
 import expireLockedSeatsJob from './crons/expireLockedSeats.cron.js'
 import expireBookingsJob from './crons/expireBookings.cron.js'
 
-// dotenv.config({
-//     path: './.env'
-// })
+dotenv.config({
+    path: './.env'
+})
 
-dotenv.config()
+// dotenv.config()
 
 
 // Initialize database and cron jobs

@@ -14,8 +14,10 @@ function LocationCard({ onClose }) {
     const [loading, setLoading] = useState(false)
     const [allCities, setAllCities] = useState([]);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
-        axios.get("http://localhost:8000/api/v1/cities")
+        axios.get(`${baseUrl}/cities`)
             .then(res => setAllCities(res.data.data || []))
             .catch(() => setAllCities([]));
     }, []);
@@ -32,7 +34,7 @@ function LocationCard({ onClose }) {
             try {
                 setLoading(true)
                 const res = await axios.get(
-                    "http://localhost:8000/api/v1/cities/search",
+                    `${baseUrl}/cities/search`,
                     { params: { city } }
                 );
                 setResults(res.data.data || []);

@@ -28,6 +28,8 @@ function SeatLayout() {
     const [selectedSeats, setSelectedSeats] = useState([])
     const [lockedSeats, setLockedSeats] = useState([]);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     const createBooking = async () => {
         try {
             const token = localStorage.getItem("accessToken");
@@ -47,7 +49,7 @@ function SeatLayout() {
             }));
 
             const res = await axios.post(
-                "http://localhost:8000/api/v1/booking",
+                `${baseUrl}/booking`,
                 {
                     movieId: id,
                     theatreId: theatreId,
@@ -86,7 +88,7 @@ function SeatLayout() {
         const fetchLockedSeats = async () => {
             try {
                 const res = await axios.get(
-                    `http://localhost:8000/api/v1/booking/locked-seats`,
+                    `${baseUrl}/booking/locked-seats`,
                     {
                         params: {
                             movieId: id,
@@ -114,7 +116,7 @@ function SeatLayout() {
 
     useEffect(() => {
         axios
-            .get(`http://localhost:8000/api/v1/movies/${id}`)
+            .get(`${baseUrl}/movies/${id}`)
             .then(res => {
                 setMovieTitle(res.data?.data?.title || "")
             })

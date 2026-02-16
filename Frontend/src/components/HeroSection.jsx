@@ -7,10 +7,12 @@ function HeroSection() {
 
     const [nowShowingMovies, setNowShowingMovies] = useState([])
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
         const fetchNowShowing = async () => {
             try {
-                const res = await axios.get("http://localhost:8000/api/v1/movies/now-showing")
+                const res = await axios.get(`${baseUrl}/movies/now-showing`)
                 setNowShowingMovies(res.data.data || []);
             }
             catch(error){

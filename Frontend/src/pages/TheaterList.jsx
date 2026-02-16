@@ -21,6 +21,8 @@ function TheaterList() {
     const [location, setLocation] = useState(null)
     const [theater, setTheater] = useState([])
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
@@ -45,7 +47,7 @@ function TheaterList() {
 
 
     useEffect(() => {
-        axios.get("http://localhost:8000/api/v1/movies/now-showing")
+        axios.get(`${baseUrl}/movies/now-showing`)
             .then(res => setNowShowingMovies(res.data.data || []))
             .catch((error) => {
                 console.log("Now Showing Movies data fetch error", error)
@@ -62,7 +64,7 @@ function TheaterList() {
             console.log("Select a location")
             return
         }
-        axios.get("http://localhost:8000/api/v1/theatres/nearby", {
+        axios.get(`${baseUrl}/theatres/nearby`, {
             params: {
                 lat: location.lat,
                 lng: location.lng,

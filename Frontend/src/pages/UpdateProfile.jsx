@@ -15,6 +15,8 @@ export default function UpdateProfile() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
         if (user) {
             setName(user.name || "");
@@ -36,7 +38,7 @@ export default function UpdateProfile() {
             setLoading(true);
 
             const res = await axios.put(
-                "http://localhost:8000/api/v1/users/update-profile",
+                `${baseUrl}/users/update-profile`,
                 {
                     name,
                     username,

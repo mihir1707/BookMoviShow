@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+
+// console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
+// console.log("REFRESH_TOKEN_SECRET:", process.env.REFRESH_TOKEN_SECRET);
+
 
 const userSchema = new mongoose.Schema({
 
@@ -50,10 +54,9 @@ const userSchema = new mongoose.Schema({
 
 
 // Hash password
-userSchema.pre('save', async function (next) {
-    if(!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+    if(!this.isModified('password')) return;
     this.password = await bcrypt.hash(this.password, 10)
-    next();
 })
 
 
@@ -65,6 +68,9 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 // Access token
 userSchema.methods.generateAccessToken = function () {
+    if (!process.env.ACCESS_TOKEN_SECRET) {
+        throw new Error("ACCESS_TOKEN_SECRET is missing in .env");
+    }
     return jwt.sign(
         {
             _id: this._id,
@@ -82,6 +88,9 @@ userSchema.methods.generateAccessToken = function () {
 
 // Refresh token
 userSchema.methods.generateRefreshToken = function () {
+    if (!process.env.REFRESH_TOKEN_SECRET) {
+        throw new Error("REFRESH_TOKEN_SECRET is missing in .env");
+    }
     return jwt.sign(
         {
             _id: this._id,

@@ -16,10 +16,12 @@ function MovieDetails() {
     const [nowShowingMovies, setNowShowingMovies] = useState([]);
     const [isFavorite, setIsFavorite] = useState(false);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
         const fetchMovie = async () => {
             try {
-                const res = await axios.get(`http://localhost:8000/api/v1/movies/${id}`);
+                const res = await axios.get(`${baseUrl}/movies/${id}`);
                 setMovie(res.data.data);
                 setIsFavorite(res.data.data.isFavorite);
             }
@@ -34,7 +36,7 @@ function MovieDetails() {
     useEffect(() => {
         const fetchNowShowing = async () => {
             try {
-                const res = await axios.get("http://localhost:8000/api/v1/movies/now-showing");
+                const res = await axios.get(`${baseUrl}/movies/now-showing`);
                 setNowShowingMovies(res.data.data || []);
             }
             catch (err) {
@@ -50,7 +52,7 @@ function MovieDetails() {
         const fetchMovie = async () => {
             try {
                 const res = await axios.get(
-                    `http://localhost:8000/api/v1/movies/${id}`
+                    `${baseUrl}/movies/${id}`
                 );
                 setMovie(res.data.data);
             } catch (err) {
@@ -71,7 +73,7 @@ function MovieDetails() {
                 }
 
                 const res = await axios.get(
-                    "http://localhost:8000/api/v1/users/favorites",
+                    `${baseUrl}/users/favorites`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -104,7 +106,7 @@ function MovieDetails() {
 
             console.log(token)
 
-            const res = await axios.post(`http://localhost:8000/api/v1/users/favorites/${movie._id}`,
+            const res = await axios.post(`${baseUrl}/users/favorites/${movie._id}`,
                 {},
                 {
                     headers: {

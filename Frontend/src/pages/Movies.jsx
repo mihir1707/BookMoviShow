@@ -9,11 +9,13 @@ function Movies() {
     const [nowShowingMovies, setNowShowingMovies] = useState([])
     const [upComingMovies, setUpComingMovies] = useState([])
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     useEffect(() => {
         const fetchMovies = async () => {
             try{
-                const nowShowing = await axios.get("http://localhost:8000/api/v1/movies/now-showing")
-                const upComing = await axios.get("http://localhost:8000/api/v1/movies/upcoming")
+                const nowShowing = await axios.get(`${baseUrl}/movies/now-showing`)
+                const upComing = await axios.get(`${baseUrl}/movies/upcoming`)
 
                 setNowShowingMovies(nowShowing.data.data || [])
                 setUpComingMovies(upComing.data.data || [])

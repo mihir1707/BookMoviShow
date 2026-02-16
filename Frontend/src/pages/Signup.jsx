@@ -21,6 +21,8 @@ export default function Signup() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
     const handleSignup = async () => {
         setError("");
 
@@ -38,7 +40,7 @@ export default function Signup() {
             setLoading(true);
 
             const res = await axios.post(
-                "http://localhost:8000/api/v1/users/register",
+                `${baseUrl}/users/register`,
                 {
                     name,
                     email,

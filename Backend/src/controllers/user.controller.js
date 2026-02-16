@@ -4,15 +4,12 @@ import APIerror from "../utils/APIerrors.js";
 import { User } from "../models/user.model.js";
 import APIresponse from "../utils/APIresponse.js";
 import { Movie } from "../models/movie.model.js";
+import jwt from "jsonwebtoken";
 
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
         const user = await User.findById(userId)
-
-        if (!user) {
-            throw new APIerror(404, "User not found while generate Tokens");
-        }
 
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
@@ -21,12 +18,15 @@ const generateAccessAndRefreshTokens = async (userId) => {
         await user.save({ validateBeforeSave: false })
 
         return { accessToken, refreshToken }
-
     }
     catch (error) {
-        throw new APIerror(500, 'Something went wrong while generating refresh and access token')
+        throw new APIerror(
+            500,
+            'Something went wrong while generating refresh and access token'
+        )
     }
 }
+
 
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -164,7 +164,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
 
-    const incomingRefreshToken = req.cookie?.refreshToken || req.body.refreshToken
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken
 
     if (!incomingRefreshToken) {
         throw new APIerror(401, 'unauthorized request')
