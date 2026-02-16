@@ -28,14 +28,13 @@ connectDB()
     console.log('MongoDB connection falied !!',error);
 })
 
-app.get("/", (req, res) => {
-    res.send("Welcome to book-my-show backend API");
-});
-
-const PORT = process.env.PORT || 2590;
-app.listen(PORT, ()=>{
-    console.log(`Server is running at port : ${PORT}`);
-})
+// Only listen in local development, not on Vercel
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 2590;
+    app.listen(PORT, ()=>{
+        console.log(`Server is running at port : ${PORT}`);
+    })
+}
 
 // Export app for Vercel serverless functions
 export default app;
