@@ -38,5 +38,4 @@ app.use('/api/v1/booking', bookingRouter)
 app.use("/api/v1/theatres", theatreRoutes);
 app.use("/api/v1/razorpay", razorpayRouter);
 
-
 export default app;
