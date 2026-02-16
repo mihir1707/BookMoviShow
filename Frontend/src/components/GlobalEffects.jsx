@@ -82,7 +82,7 @@ const GlobalEffects = () => {
             {/* WINTER */}
             {(effect === "winter" || effect === "newyear") && (
                 <>
-                    <Snowfall snowflakeCount={200} style={commonStyle} />
+                    <Snowfall snowflakeCount={50} style={commonStyle} />
                     {effect === "newyear" && (
                         <Confetti
                             width={windowSize.width}
@@ -100,7 +100,7 @@ const GlobalEffects = () => {
                 <Confetti
                     width={windowSize.width}
                     height={windowSize.height}
-                    numberOfPieces={70}
+                    numberOfPieces={50}
                     wind={0.05}
                     colors={["#8ecae6", "#219ebc", "#023047"]}
                     style={commonStyle}
