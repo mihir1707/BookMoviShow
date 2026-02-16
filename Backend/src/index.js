@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import connectDB from './db/db.js'
-import app from './app.js'
+import {app} from './app.js'
 import startMovieSyncCron from './crons/movieSync.cron.js'
 import syncMoviesFromPVR from './services/syncMovies.service.js'
 import syncCities from './services/syncCities.service.js'
@@ -25,3 +25,7 @@ connectDB()
 .catch((error) => {
     console.log('MongoDB connection falied !!',error);
 })
+
+app.get("/", (req, res) => {
+  res.send("Welcome to book-my-show backend API");
+});
