@@ -39,10 +39,15 @@ import paymentRouter from './routes/payment.router.js'
 import bookingRouter from './routes/booking.router.js'
 import theatreRoutes from "./routes/theatre.router.js";
 import razorpayRouter from "./routes/razorpay.router.js";
+import { getNowShowingMovies, getUpcomingMovies } from './controllers/movie.controller.js';
 
 
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/movies', movieRouter)
+
+// Convenience routes for now-showing and upcoming
+app.get('/api/v1/now-showing', getNowShowingMovies)
+app.get('/api/v1/upcoming', getUpcomingMovies)
 app.use('/api/v1/cities', cityRouter)
 app.use('/api/v1/payments', paymentRouter)
 app.use('/api/v1/booking', bookingRouter)
