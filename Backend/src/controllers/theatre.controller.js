@@ -5,7 +5,6 @@ import APIresponse from "../utils/APIresponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { mapGeoapifyToTheater } from "../utils/theatre.mapper.js";
 
-
 const seedTheatresByRadius = asyncHandler(async (req, res) => {
     const { lat, lng, cityId, radius = 10000 } = req.body;
     const adminId = req.user?._id;
@@ -14,12 +13,22 @@ const seedTheatresByRadius = asyncHandler(async (req, res) => {
         throw new APIerror(400, "lat, lng and cityId are required");
     }
 
-    const places = await getTheatresByRadius(lat, lng, radius);
+    const places = await getTheatresByRadius(
+        Number(lat),
+        Number(lng),
+        Number(radius)
+    );
 
-    let insertedCount = 0;
+    if (!Array.isArray(places) || places.length === 0) {
+        return res.status(200).json(
+            new APIresponse(200, { inserted: 0 }, "No theatres found")
+        );
+    }
+
+    const bulkOps = [];
 
     for (const place of places) {
-        if (!place.properties?.name) continue;
+        if (!place?.properties?.place_id) continue;
 
         const theaterData = mapGeoapifyToTheater(
             place,
@@ -27,29 +36,52 @@ const seedTheatresByRadius = asyncHandler(async (req, res) => {
             adminId
         );
 
-        const result = await Theater.updateOne(
-            { name: theaterData.name, cityId },
-            { $setOnInsert: theaterData },
-            { upsert: true }
-        );
+        if (!theaterData?.geoapifyPlaceId) continue;
 
-        if (result.upsertedCount > 0) {
-            insertedCount++;
-        }
+        bulkOps.push({
+            updateOne: {
+                filter: {
+                    $or: [
+                        { geoapifyPlaceId: theaterData.geoapifyPlaceId },
+                        { name: theaterData.name, cityId: theaterData.cityId },
+                    ],
+                },
+                update: { $set: theaterData },
+                upsert: true,
+            },
+        });
     }
 
-    return res.status(200).json(
-        new APIresponse(
-            200,
-            { inserted: insertedCount },
-            "Theatres seeded successfully"
-        )
-    );
-});
+    if (bulkOps.length === 0) {
+        return res.status(200).json(
+            new APIresponse(200, { inserted: 0 }, "No valid theatres found")
+        );
+    }
 
+    try {
+        const result = await Theater.bulkWrite(bulkOps, { ordered: false });
+
+        return res.status(200).json(
+            new APIresponse(
+                200,
+                { inserted: result.upsertedCount || 0 },
+                "Theatres seeded successfully"
+            )
+        );
+    } catch (error) {
+        console.warn('[seedTheatresByRadius] bulkWrite error:', error.message);
+        return res.status(200).json(
+            new APIresponse(200, { inserted: 0 }, 'Theatres seeded with some conflicts (duplicates skipped)')
+        );
+    }
+});
 
 const getTheatresByCity = asyncHandler(async (req, res) => {
     const { cityId } = req.params;
+
+    if (!cityId) {
+        throw new APIerror(400, "cityId is required");
+    }
 
     const theatres = await Theater.find({
         cityId,
@@ -64,7 +96,6 @@ const getTheatresByCity = asyncHandler(async (req, res) => {
         )
     );
 });
-
 
 const getNearbyTheatres = asyncHandler(async (req, res) => {
     const { lat, lng, radius = 20000 } = req.query;
@@ -94,7 +125,6 @@ const getNearbyTheatres = asyncHandler(async (req, res) => {
         )
     );
 });
-
 
 export {
     seedTheatresByRadius,

@@ -1,10 +1,15 @@
 import cron from "node-cron";
+import mongoose from "mongoose";
 import { Booking } from "../models/booking.model.js";
 import { Payment } from "../models/payment.model.js";
 
 const expireBookingsJob = cron.schedule(
     "* * * * *",
     async () => {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('[CRON] expireBookings skipped: DB not connected');
+            return;
+        }
         try {
             const expiredBookings = await Booking.find({
                 bookingStatus: "PENDING",

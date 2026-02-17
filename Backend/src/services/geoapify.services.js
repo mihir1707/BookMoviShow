@@ -1,9 +1,7 @@
 import axios from "axios";
 
-
 const GEOAPIFY_KEY = process.env.GEOAPIFY_KEY;
 const GEOAPIFY_BASE_URL = "https://api.geoapify.com/v2/places";
-
 
 export const getTheatresByRadius = async (
     lat,
@@ -12,6 +10,10 @@ export const getTheatresByRadius = async (
     limit = 20
 ) => {
     try {
+        if (!GEOAPIFY_KEY) {
+            throw new Error("Missing GEOAPIFY_KEY");
+        }
+
         const res = await axios.get(GEOAPIFY_BASE_URL, {
             params: {
                 categories: "entertainment.cinema",
@@ -22,10 +24,7 @@ export const getTheatresByRadius = async (
             },
         });
 
-        console.log("GEOAPIFY KEY =", process.env.GEOAPIFY_KEY);
-
-        return res.data.features;
-
+        return res.data.features || [];
     } catch (error) {
         console.error(
             "Geoapify radius search error:",
@@ -34,21 +33,3 @@ export const getTheatresByRadius = async (
         return [];
     }
 };
-
-
-
-
-// const getTheatres = async () => {
-//     const res = await axios.get("https://api.geoapify.com/v2/places", {
-//         params: {
-//             categories: "entertainment.cinema",
-//             filter: "circle:72.587214,23.02691,10000",
-//             bias: "proximity:72.587214,23.02691",
-//             limit: 20,
-//             apiKey: GEOAPIFY_API_KEY,
-//         },
-//     });
-//     console.log(res.data.features);
-// };
-
-// getTheatres();

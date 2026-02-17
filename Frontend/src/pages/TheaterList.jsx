@@ -137,6 +137,14 @@ function TheaterList() {
             <hr className='border text-gray-700' />
 
             <div className='m-3 sm:m-5 ml-3 sm:ml-10'>
+                <div className='mb-3'>
+                    <p className='text-lg sm:text-xl font-medium'>
+                        {location && theater && theater.length > 0
+                            ? ""
+                            : 'Not available'}
+                    </p>
+                </div>
+
                 <ShowCard
                     theaters={theater}
                     id={String(id)}
