@@ -5,7 +5,10 @@ import APIresponse from "../utils/APIresponse.js";
 
 const getAllMovies = asyncHandler( async(req, res) => {
 
-    const movies = await Movie.find({ isActive: true }).sort({ releaseDate: -1 })
+    const movies = await Movie.find({ isActive: true })
+        .select('-cast -crew')
+        .sort({ releaseDate: -1 })
+        .lean()
 
     return res.status(200)
     .json(
@@ -34,7 +37,9 @@ const getNowShowingMovies = asyncHandler( async(req, res) => {
             $lte: today,
         },
     })
+    .select('-cast -crew')
     .sort({ releaseDate: -1 })
+    .lean()
 
     return res.status(200).json(
         new APIresponse(
@@ -53,10 +58,12 @@ const getUpcomingMovies = asyncHandler(async (req, res) => {
     const movies = await Movie.find({
         isActive: false,
         releaseDate: { 
-            $gt: new Date() 
+            $gt: new Date()
         },
     })
-    .sort({ releaseDate: 1 });
+    .select('-cast -crew')
+    .sort({ releaseDate: 1 })
+    .lean();
 
     return res.status(200).json(
         new APIresponse(
@@ -127,7 +134,9 @@ const searchMovie = asyncHandler( async(req, res) => {
             $options: "i",
         }
     })
+    .select('-cast -crew')
     .limit(10)
+    .lean()
 
     return res.status(200).json(
         new APIresponse(

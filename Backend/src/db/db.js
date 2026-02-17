@@ -8,7 +8,9 @@ const connectDB = async () => {
             minPoolSize: 2,
             serverSelectionTimeoutMS: 10000,
             socketTimeoutMS: 30000,
-            family: 4
+            family: 4,
+            retryWrites: true,
+            w: "majority",
         })
         console.log(`\n MongoDB connected !! DB Host: ${connectionInstance.connection.host}`);
     }
