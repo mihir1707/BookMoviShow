@@ -12,15 +12,15 @@ function LocationCard({ onClose }) {
     const [city, setCity] = useState("")
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
-    const [allCities, setAllCities] = useState([]);
+    // const [allCities, setAllCities] = useState([]);
 
     const baseUrl = import.meta.env.VITE_BASE_URL;
 
-    useEffect(() => {
-        axios.get(`${baseUrl}/cities`)
-            .then(res => setAllCities(res.data.data || []))
-            .catch(() => setAllCities([]));
-    }, []);
+    // useEffect(() => {
+    //     axios.get(`${baseUrl}/cities`)
+    //         .then(res => setAllCities(res.data.data || []))
+    //         .catch(() => setAllCities([]));
+    // }, []);
 
 
     useEffect(() => {
@@ -65,60 +65,60 @@ function LocationCard({ onClose }) {
         }
     }, [onClose])
 
-    const detectLocation = () => {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
-            return;
-        }
+    // const detectLocation = () => {
+    //     if (!navigator.geolocation) {
+    //         alert("Geolocation is not supported by your browser");
+    //         return;
+    //     }
 
-        navigator.geolocation.getCurrentPosition(
-            async ({ coords }) => {
-                try {
-                    const { latitude, longitude } = coords;
+    //     navigator.geolocation.getCurrentPosition(
+    //         async ({ coords }) => {
+    //             try {
+    //                 const { latitude, longitude } = coords;
 
-                    const res = await axios.get(
-                        "https://nominatim.openstreetmap.org/reverse",
-                        {
-                            params: {
-                                lat: latitude,
-                                lon: longitude,
-                                format: "json",
-                            },
-                        }
-                    );
+    //                 const res = await axios.get(
+    //                     "https://nominatim.openstreetmap.org/reverse",
+    //                     {
+    //                         params: {
+    //                             lat: latitude,
+    //                             lon: longitude,
+    //                             format: "json",
+    //                         },
+    //                     }
+    //                 );
 
-                    const address = res.data.address || {};
-                    const detectedCity =
-                        address.city ||
-                        address.town ||
-                        address.village ||
-                        address.state;
+    //                 const address = res.data.address || {};
+    //                 const detectedCity =
+    //                     address.city ||
+    //                     address.town ||
+    //                     address.village ||
+    //                     address.state;
 
-                    if (!detectedCity) {
-                        alert("Unable to detect city");
-                        return;
-                    }
+    //                 if (!detectedCity) {
+    //                     alert("Unable to detect city");
+    //                     return;
+    //                 }
 
-                    const matchedCity = allCities.find(
-                        (c) =>
-                            c.name.toLowerCase() === detectedCity.toLowerCase()
-                    );
+    //                 const matchedCity = allCities.find(
+    //                     (c) =>
+    //                         c.name.toLowerCase() === detectedCity.toLowerCase()
+    //                 );
 
-                    if (!matchedCity) {
-                        alert(`City "${detectedCity}" not available`);
-                        return;
-                    }
+    //                 if (!matchedCity) {
+    //                     alert(`City "${detectedCity}" not available`);
+    //                     return;
+    //                 }
 
-                    selectCity(matchedCity.name);
+    //                 selectCity(matchedCity.name);
 
-                } catch (error) {
-                    console.error("Location detection failed", error);
-                    alert("Unable to detect location");
-                }
-            },
-            () => alert("Location permission denied")
-        );
-    };
+    //             } catch (error) {
+    //                 console.error("Location detection failed", error);
+    //                 alert("Unable to detect location");
+    //             }
+    //         },
+    //         () => alert("Location permission denied")
+    //     );
+    // };
 
 
     const selectCity = (cityName) => {
@@ -191,13 +191,13 @@ function LocationCard({ onClose }) {
 
 
 
-                <button
+                {/* <button
                     onClick={detectLocation}
                     className="flex items-center gap-2 text-red-500 mt-4 text-md cursor-pointer"
                 >
                     <Crosshair size={16} />
                     Detect my location
-                </button>
+                </button> */}
 
                 <hr className="my-3 text-white w-full" />
 
@@ -208,15 +208,15 @@ function LocationCard({ onClose }) {
                         <div key={c.name} className="flex flex-col items-center">
                             <CityCard
                                 city={c}
-                                onSelect={selectCity}
+                                onSelect={() => selectCity(c.name)}
                             />
                         </div>
                     ))}
                 </div>
 
-                <p className='text-center text-primary mt-4 mb-4 text-sm cursor-pointer'>
+                {/* <p className='text-center text-primary mt-4 mb-4 text-sm cursor-pointer'>
                     View All Cities
-                </p>
+                </p> */}
 
             </div>
         </div>

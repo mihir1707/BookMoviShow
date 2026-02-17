@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react'
+import { ChevronDown, MenuIcon, SearchIcon, XIcon } from 'lucide-react'
 import LocationCard from './LocationCard';
 import ProfileCard from './ProfileCard';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -81,7 +81,7 @@ function Navbar() {
             </div>
 
             <div className="flex items-center gap-8">
-                <SearchIcon className="max-md:hidden w-6 h-6 cursor-pointer" />
+                {/* <SearchIcon className="max-md:hidden w-6 h-6 cursor-pointer" /> */}
 
                 {!loading && (
                     user ? (
