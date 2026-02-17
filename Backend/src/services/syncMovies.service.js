@@ -18,17 +18,29 @@ const syncMoviesFromPVR = async() => {
 
     const allMovies = [...nowShowingMovies, ...upcomingMovies];
 
-    const bulkOps = allMovies.map(movie => ({
+    const bulkOps = allMovies.map((movie) => ({
         updateOne: {
-            filter: { pvrId: movie.pvrId },
+            // match by pvrId OR slug to avoid duplicate-slug upserts
+            filter: { $or: [{ pvrId: movie.pvrId }, { slug: movie.slug }] },
             update: {
-                $set: movie
+                $set: movie,
             },
             upsert: true,
         },
     }));
 
-    await Movie.bulkWrite(bulkOps);
+    try {
+        // use unordered execution to reduce impact of single write errors
+        await Movie.bulkWrite(bulkOps, { ordered: false });
+    } catch (err) {
+        // Handle duplicate-key errors gracefully and log details for debugging
+        if (err && err.code === 11000) {
+            console.warn("syncMoviesFromPVR: duplicate key conflict during bulkWrite:", err.message || err);
+        } else {
+            console.error("syncMoviesFromPVR bulkWrite error:", err);
+            throw err;
+        }
+    }
 
     return allMovies.length;
 }
