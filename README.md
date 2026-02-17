@@ -39,35 +39,35 @@ This project demonstrates full-stack development using the MERN stack with authe
 ## 📸 Screenshots
 
 ### 🏠 Home Page
-![Home Page 1](screenshots/home-1.png)
-![Home Page 2](screenshots/home-2.png)
-![Home Page 3](screenshots/home-3.png)
-![Home Page 4](screenshots/home-4.png)
-
-### 🎥 Movie Details Page
-![Movie Details 1](screenshots/movie-details-1.png)
-![Movie Details 2](screenshots/movie-details-2.png)
-![Movie Details 3](screenshots/movie-details-3.png)
-
-### ❤️ Favorite Page
-![Favorite Page](screenshots/favorite-1.png)
-
-### 🪑 Seat Selection Page
-![Seat Layout 1](screenshots/seat-layout-1.png)
-![Seat Layout 2](screenshots/seat-layout-2.png)
-![Seat Layout 3](screenshots/seat-layout-3.png)
-![Seat Layout 4](screenshots/seat-layout-4.png)
-
-### 💳 Payment Page
-![Payment Page](screenshots/payment-1.png)
+![Home Page 1](Screenshots/Home_Page/home-1.png)
+![Home Page 2](Screenshots/Home_Page/home-2.png)
+![Home Page 3](Screenshots/Home_Page/home-3.png)
+![Home Page 4](Screenshots/Home_Page/home-4.png)
 
 ### 🎬 Movies Page
-![Movies Page 1](screenshots/movie-1.png)
-![Movies Page 2](screenshots/movie-2.png)
+![Movies Page 1](Screenshots/Movies_Page/movie-1.png)
+![Movies Page 2](Screenshots/Movies_Page/movie-2.png)
+
+### 🎥 Movie Details Page
+![Movie Details 1](Screenshots/Movie_Details/movie-details-1.png)
+![Movie Details 2](Screenshots/Movie_Details/movie-details-2.png)
+![Movie Details 3](Screenshots/Movie_Details/movie-details-3.png)
 
 ### 🏢 Theater List
-![Theater List 1](screenshots/theater-list-1.png)
-![Theater List 2](screenshots/theater-list-2.png)
+![Theater List 1](Screenshots/Theater_List/theater-list-1.png)
+![Theater List 2](Screenshots/Theater_List/theater-list-2.png)
+
+### 🪑 Seat Selection Page
+![Seat Layout 1](Screenshots/Seat_Layout/seat-layout-1.png)
+![Seat Layout 2](Screenshots/Seat_Layout/seat-layout-2.png)
+![Seat Layout 3](Screenshots/Seat_Layout/seat-layout-3.png)
+![Seat Layout 4](Screenshots/Seat_Layout/seat-layout-4.png)
+
+### 💳 Payment Page
+![Payment Page](Screenshots/Payment_Page/payment-1.png)
+
+### ❤️ Favorite Page
+![Favorite Page](Screenshots/Favorite/favorite-1.png)
 
 ---
 
