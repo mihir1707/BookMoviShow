@@ -39,35 +39,67 @@ This project demonstrates full-stack development using the MERN stack with authe
 ## 📸 Screenshots
 
 ### 🏠 Home Page
-![Home Page 1](Screenshots/Home_Page/home-1.png)
-![Home Page 2](Screenshots/Home_Page/home-2.png)
-![Home Page 3](Screenshots/Home_Page/home-3.png)
-![Home Page 4](Screenshots/Home_Page/home-4.png)
+<p align="center">
+  <img src="Screenshots/Home_Page/home-1.png" width="45%" />
+  <img src="Screenshots/Home_Page/home-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="Screenshots/Home_Page/home-3.png" width="45%" />
+  <img src="Screenshots/Home_Page/home-4.png" width="45%" />
+</p>
+
+---
 
 ### 🎬 Movies Page
-![Movies Page 1](Screenshots/Movies_Page/movie-1.png)
-![Movies Page 2](Screenshots/Movies_Page/movie-2.png)
+<p align="center">
+  <img src="Screenshots/Movies_Page/movie-1.png" width="45%" />
+  <img src="Screenshots/Movies_Page/movie-2.png" width="45%" />
+</p>
+
+---
 
 ### 🎥 Movie Details Page
-![Movie Details 1](Screenshots/Movie_Details/movie-details-1.png)
-![Movie Details 2](Screenshots/Movie_Details/movie-details-2.png)
-![Movie Details 3](Screenshots/Movie_Details/movie-details-3.png)
+<p align="center">
+  <img src="Screenshots/Movie_Details/movie-details-1.png" width="45%" />
+  <img src="Screenshots/Movie_Details/movie-details-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="Screenshots/Movie_Details/movie-details-3.png" width="45%" />
+</p>
+
+---
 
 ### 🏢 Theater List
-![Theater List 1](Screenshots/Theater_List/theater-list-1.png)
-![Theater List 2](Screenshots/Theater_List/theater-list-2.png)
+<p align="center">
+  <img src="Screenshots/Theater_List/theater-list-1.png" width="45%" />
+  <img src="Screenshots/Theater_List/theater-list-2.png" width="45%" />
+</p>
+
+---
 
 ### 🪑 Seat Selection Page
-![Seat Layout 1](Screenshots/Seat_Layout/seat-layout-1.png)
-![Seat Layout 2](Screenshots/Seat_Layout/seat-layout-2.png)
-![Seat Layout 3](Screenshots/Seat_Layout/seat-layout-3.png)
-![Seat Layout 4](Screenshots/Seat_Layout/seat-layout-4.png)
+<p align="center">
+  <img src="Screenshots/Seat_Layout/seat-layout-1.png" width="45%" />
+  <img src="Screenshots/Seat_Layout/seat-layout-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="Screenshots/Seat_Layout/seat-layout-3.png" width="45%" />
+  <img src="Screenshots/Seat_Layout/seat-layout-4.png" width="45%" />
+</p>
+
+---
 
 ### 💳 Payment Page
-![Payment Page](Screenshots/Payment_Page/payment-1.png)
+<p align="center">
+  <img src="Screenshots/Payment_Page/payment-1.png" width="45%" />
+</p>
+
+---
 
 ### ❤️ Favorite Page
-![Favorite Page](Screenshots/Favorite/favorite-1.png)
+<p align="center">
+  <img src="Screenshots/Favorite/favorite-1.png" width="45%" />
+</p>
 
 ---
 
