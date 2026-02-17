@@ -6,7 +6,7 @@ const startMovieSyncCron = () => {
     cron.schedule("0 */6 * * *", async() => {
         try{
             console.log("Auto movie sync started...")
-            const count = syncMoviesFromPVR()
+            const count = await syncMoviesFromPVR()
             console.log(`Auto movie sync completed. Movies synced: ${count}`);
         }
         catch(error){
