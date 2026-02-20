@@ -66,13 +66,23 @@ export default function Signup() {
             navigate("/");
         }
         catch (err) {
-            console.error(err);
+            console.error("Signup Error:", err);
 
-            if (err.response?.status === 409) {
-                setError("Email already exists");
-            } else {
-                setError("Signup failed. Try again.");
+            let message = "Signup failed. Please try again.";
+
+            if (err.response?.data) {
+                if (typeof err.response.data === "string") {
+                    const match = err.response.data.match(/Error:\s*(.*?)<br|<\/pre>/);
+                    if (match && match[1]) {
+                        message = match[1].trim();
+                    }
+                }
+                else if (err.response.data.message) {
+                    message = err.response.data.message;
+                }
             }
+
+            setError(message);
         }
         finally {
             setLoading(false);

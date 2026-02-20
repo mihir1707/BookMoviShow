@@ -51,12 +51,17 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Invalid email");
     }
 
-    const checkUser = await User.findOne({
-        $or: [{ email }, { username }]
-    })
+    const existingUser = await User.findOne({
+        $or: [{ email }, { username }, { phoneNumber }]
+    });
 
-    if (checkUser) {
-        throw new APIerror(400, 'User with email or username already exists')
+    if (existingUser) {
+        if (existingUser.email === email)
+            throw new APIerror(409, "Email already exists");
+        if (existingUser.username === username)
+            throw new APIerror(409, "Username already exists");
+        if (existingUser.phoneNumber === phoneNumber)
+            throw new APIerror(409, "Phone number already exists");
     }
 
     const user = await User.create({
@@ -67,11 +72,7 @@ const registerUser = asyncHandler(async (req, res) => {
         phoneNumber: String(phoneNumber),
     })
 
-    const createdUser = await User.findById(user._id)
-
-    if (!createdUser) {
-        throw new APIerror(500, 'Something went wrong while registering the user')
-    }
+    const createdUser = await User.findById(user._id);
 
     return res.status(201)
         .json(
