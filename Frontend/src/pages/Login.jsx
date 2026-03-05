@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { FaMicrosoft, FaFacebookF, FaTwitter } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { auth, googleProvider } from "../firebase.js";
+import { signInWithPopup } from "firebase/auth";
 
 export default function Login() {
 
@@ -25,7 +26,7 @@ export default function Login() {
 
         console.log(email)
         console.log(password)
-        if(!email || !password){
+        if (!email || !password) {
             setError("Email and password are required");
             return;
         }
@@ -49,22 +50,41 @@ export default function Login() {
 
             alert("Login successful");
             navigate("/"); // redirect after login
-        } 
+        }
         catch (err) {
             console.error(err);
 
-            if(err.response?.status === 401){
+            if (err.response?.status === 401) {
                 setError("Invalid email or password");
-            } 
-            else if(err.response?.status === 404){
+            }
+            else if (err.response?.status === 404) {
                 setError("User not found");
-            } 
-            else{
+            }
+            else {
                 setError("Login failed. Try again.");
             }
         }
         finally {
             setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+
+            console.log(user);
+
+            localStorage.setItem("user", JSON.stringify(user));
+            setUser(user);
+
+            alert("Google login successful");
+            navigate("/");
+        }
+        catch (error) {
+            console.error(error);
+            setError("Google login failed");
         }
     };
 
@@ -87,21 +107,22 @@ export default function Login() {
                 </p>
 
                 <div className="flex gap-2 sm:gap-3 mb-4 sm:mb-5">
-                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
+                    <button
+                        onClick={handleGoogleLogin}
+                        className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition"
+                    >
                         <FcGoogle size={18} className='sm:w-5 sm:h-5' />
                     </button>
 
-                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
+                    {/* <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
                         <FaMicrosoft size={16} className='sm:w-4.5 sm:h-4.5' color="#00A4EF" />
                     </button>
-
                     <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
                         <FaFacebookF size={16} className='sm:w-4.5 sm:h-4.5' color="#1877F2" />
                     </button>
-
                     <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
                         <FaTwitter size={16} className='sm:w-4.5 sm:h-4.5' color="#1DA1F2" />
-                    </button>
+                    </button> */}
                 </div>
 
                 <div className="text-center text-xs mb-2 sm:mb-3 text-gray-400">OR</div>

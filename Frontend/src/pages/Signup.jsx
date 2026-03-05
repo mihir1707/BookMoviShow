@@ -5,6 +5,8 @@ import { FaMicrosoft, FaFacebookF, FaTwitter } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { auth, googleProvider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
 
 export default function Signup() {
 
@@ -89,6 +91,25 @@ export default function Signup() {
         }
     };
 
+    const handleGoogleLogin = async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+    
+                console.log(user);
+    
+                localStorage.setItem("user", JSON.stringify(user));
+                setUser(user);
+    
+                alert("Google login successful");
+                navigate("/");
+            }
+            catch (error) {
+                console.error(error);
+                setError("Google login failed");
+            }
+        };
+
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-black text-white px-3 sm:px-4">
 
@@ -108,10 +129,13 @@ export default function Signup() {
                 </p>
 
                 <div className="flex gap-2 sm:gap-3 mb-4 sm:mb-5">
-                    <button className="flex-1 cursor-pointer flex items-center justify-center border rounded-lg py-2 hover:bg-gray-900/50 transition">
+                    <button
+                        onClick={handleGoogleLogin}
+                        className="flex-1 cursor-pointer flex items-center justify-center border rounded-lg py-2 hover:bg-gray-900/50 transition"
+                    >
                         <FcGoogle size={18} className='sm:w-5 sm:h-5' />
                     </button>
-                    <button className="flex-1 flex cursor-pointer items-center justify-center border rounded-lg py-2 hover:bg-gray-900/50 transition">
+                    {/* <button className="flex-1 flex cursor-pointer items-center justify-center border rounded-lg py-2 hover:bg-gray-900/50 transition">
                         <FaMicrosoft size={16} className='sm:w-4.5 sm:h-4.5' color="#00A4EF" />
                     </button>
                     <button className="flex-1 flex cursor-pointer items-center justify-center border rounded-lg py-2 hover:bg-gray-900/50 transition">
@@ -119,7 +143,7 @@ export default function Signup() {
                     </button>
                     <button className="flex-1 flex cursor-pointer items-center justify-center border rounded-lg py-2 hover:bg-gray-900/50 transition">
                         <FaTwitter size={16} className='sm:w-4.5 sm:h-4.5' color="#1DA1F2" />
-                    </button>
+                    </button> */}
                 </div>
 
                 <div className="text-center text-xs mb-2 sm:mb-3 text-gray-400">OR</div>
