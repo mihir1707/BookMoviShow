@@ -6,7 +6,8 @@ const app = express()
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://book-movi-show-frontend.vercel.app"
+  "https://book-movi-show-frontend.vercel.app",
+  "https://book-movi-show-frontend-d5hfpcpp-miirs-projects-c2370be5.vercel.app",
 ];
 
 app.use(
