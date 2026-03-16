@@ -15,7 +15,7 @@ import Signup from './pages/Signup.jsx'
 import Payment from './pages/Payment.jsx'
 import Releases from './pages/Releases.jsx'
 import UpdateProfile from './pages/UpdateProfile.jsx'
-import GlobalEffects from "./components/GlobalEffects.jsx";
+// import GlobalEffects from "./components/GlobalEffects.jsx";
 
 function App() {
 
@@ -33,7 +33,7 @@ function App() {
 
   return (
     <>
-      {!hideEffects && <GlobalEffects />}
+      {/* {!hideEffects && <GlobalEffects />} */}
       <Toaster/>
       {!hideNavbar && <Navbar/>}
       <Routes>
