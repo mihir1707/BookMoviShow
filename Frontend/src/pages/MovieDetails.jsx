@@ -48,20 +48,7 @@ function MovieDetails() {
         fetchNowShowing();
     }, []);
 
-    useEffect(() => {
-        const fetchMovie = async () => {
-            try {
-                const res = await axios.get(
-                    `${baseUrl}/movies/${id}`
-                );
-                setMovie(res.data.data);
-            } catch (err) {
-                console.error("Movie fetch error", err);
-            }
-        };
 
-        fetchMovie();
-    }, [id]);
 
 
     useEffect(() => {
@@ -69,7 +56,7 @@ function MovieDetails() {
             try {
                 const token = localStorage.getItem("accessToken");
                 if (!token){
-                    navigate('/login');
+                    return;
                 }
 
                 const res = await axios.get(

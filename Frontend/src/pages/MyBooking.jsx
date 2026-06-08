@@ -3,8 +3,11 @@ import axios from "axios";
 import Loading from "../components/Loading.jsx";
 import timeFormat from "../lib/timeFormat.js";
 import { dateFormat } from "../lib/dateFormat.js";
+import { useNavigate } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 
 function MyBooking() {
+    const navigate = useNavigate();
 
     const currency = import.meta.env.VITE_CURRENCY;
 
@@ -42,75 +45,110 @@ function MyBooking() {
                 <p className="text-gray-400 text-sm">No bookings found.</p>
             )}
 
-            {bookings.map((item) => {
-                const seatNumbers = item.seats.map(s => s.seatNumber).join(", ");
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                {bookings.map((item) => {
+                    const seatNumbers = item.seats.map(s => s.seatNumber).join(", ");
+                    const isConfirmed = item.bookingStatus === "CONFIRMED";
+                    const isPending = item.bookingStatus === "PENDING";
 
-                return (
-                    <div
-                        key={item._id}
-                        className="flex flex-col md:flex-row justify-between bg-primary/8 border border-primary/20 rounded-lg mt-3 sm:mt-4 p-2 sm:p-3 max-w-3xl"
-                    >
-                        <div className="flex flex-col md:flex-row">
-                            <img
-                                src={item.movieId?.poster_path}
-                                alt={item.movieId?.title}
-                                className="md:max-w-45 aspect-video h-auto object-cover object-bottom rounded w-full md:w-auto"
-                            />
-
-                            <div className="flex flex-col p-2 sm:p-4">
-                                <p className="text-base sm:text-lg font-semibold line-clamp-2">
-                                    {item.movieId?.title}
-                                </p>
-
-                                <p className="text-gray-400 text-xs sm:text-sm">
-                                    {timeFormat(item.movieId?.runtime)}
-                                </p>
-
-                                <p className="text-gray-400 text-xs sm:text-sm mt-auto">
-                                    {dateFormat(item.createdAt)}
-                                </p>
+                    return (
+                        <div
+                            key={item._id}
+                            className="flex flex-col sm:flex-row bg-black border border-primary/20 hover:border-primary/40 transition-colors rounded-xl overflow-hidden shadow-lg shadow-primary/5"
+                        >
+                            {/* Left Side: Movie Details */}
+                            <div className="flex flex-col sm:flex-row flex-1 p-4 gap-4 bg-primary/5">
+                                <img
+                                    src={item.movieId?.posterUrl}
+                                    alt={item.movieId?.title}
+                                    className="w-24 sm:w-28 h-auto object-cover rounded-lg shadow-md aspect-[2/3]"
+                                />
+                                <div className="flex flex-col">
+                                    <h2 className="text-lg sm:text-xl font-bold text-white line-clamp-2">
+                                        {item.movieId?.title}
+                                    </h2>
+                                    <p className="text-gray-400 text-xs sm:text-sm mt-1 mb-3">
+                                        {item.theatreId?.name || "Theater details not available"}
+                                    </p>
+                                    
+                                    <div className="mt-auto grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:text-sm">
+                                        <div>
+                                            <p className="text-primary/70 text-[10px] uppercase tracking-wider">Date & Time</p>
+                                            <p className="font-medium text-gray-200">{item.showDate} | {item.showTime}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-primary/70 text-[10px] uppercase tracking-wider">Screen</p>
+                                            <p className="font-medium text-gray-200">Screen {item.screenNo}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-primary/70 text-[10px] uppercase tracking-wider">Tickets ({item.seatCount})</p>
+                                            <p className="font-medium text-primary line-clamp-1">{seatNumbers}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-primary/70 text-[10px] uppercase tracking-wider">Total Amount</p>
+                                            <p className="font-medium text-white">{currency}{item.totalAmount}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="flex flex-col md:items-end md:text-right justify-between p-2 sm:p-4">
-                            <div className="flex items-center gap-2 sm:gap-4">
-                                <p className="text-lg sm:text-2xl font-semibold mb-2 sm:mb-3">
-                                    {currency}{item.totalAmount}
-                                </p>
+                            {/* Right Side: QR Code & Status */}
+                            <div className="relative flex flex-col items-center justify-center p-5 border-t sm:border-t-0 sm:border-l border-dashed border-primary/30 bg-primary/10 min-w-[140px]">
+                                {/* Cutouts for the ticket look */}
+                                <div className="hidden sm:block absolute -top-3 -left-3 w-6 h-6 bg-black rounded-full"></div>
+                                <div className="hidden sm:block absolute -bottom-3 -left-3 w-6 h-6 bg-black rounded-full"></div>
+                                
+                                <span className={`text-[10px] font-bold tracking-widest px-2 py-1 rounded mb-3 ${
+                                    isConfirmed ? 'bg-green-500/20 text-green-500' : 
+                                    isPending ? 'bg-orange-500/20 text-orange-500' : 'bg-red-500/20 text-red-500'
+                                }`}>
+                                    {item.bookingStatus}
+                                </span>
 
-                                {item.bookingStatus === "PENDING" && (
-                                    <button className="bg-primary px-3 sm:px-4 py-1 mb-2 sm:mb-3 text-xs sm:text-sm rounded-full font-medium cursor-pointer whitespace-nowrap">
+                                {isConfirmed ? (
+                                    <div className="bg-white p-1.5 rounded-lg shadow-sm">
+                                        <QRCodeSVG 
+                                            value={JSON.stringify({
+                                                id: item._id,
+                                                code: item.bookingCode
+                                            })} 
+                                            size={80} 
+                                        />
+                                    </div>
+                                ) : isPending ? (
+                                    <button 
+                                        onClick={() => navigate('/payment', {
+                                            state: {
+                                                bookingId: item._id,
+                                                movieTitle: item.movieId?.title,
+                                                theaterName: item.theatreId?.name,
+                                                selectedDateLabel: item.showDate,
+                                                selectedTime: item.showTime,
+                                                screenNo: item.screenNo,
+                                                selectedSeats: item.seats,
+                                                totalAmount: item.totalAmount
+                                            }
+                                        })}
+                                        className="bg-primary hover:bg-primary-dull text-black px-4 py-2 w-full text-sm rounded-full font-bold transition-colors shadow-lg shadow-primary/20"
+                                    >
                                         Pay Now
                                     </button>
+                                ) : (
+                                    <div className="w-20 h-20 flex items-center justify-center opacity-20">
+                                        <span className="text-2xl">❌</span>
+                                    </div>
+                                )}
+                                
+                                {isConfirmed && (
+                                    <p className="text-[9px] text-gray-500 mt-2 text-center uppercase">
+                                        Scan at entrance
+                                    </p>
                                 )}
                             </div>
-
-                            <div className="text-xs sm:text-sm">
-                                <p>
-                                    <span className="text-gray-400">
-                                        Total Tickets:
-                                    </span>{" "}
-                                    {item.seatCount}
-                                </p>
-
-                                <p>
-                                    <span className="text-gray-400">
-                                        Seat Number:
-                                    </span>{" "}
-                                    <span className='line-clamp-2'>{seatNumbers}</span>
-                                </p>
-
-                                <p>
-                                    <span className="text-gray-400">
-                                        Status:
-                                    </span>{" "}
-                                    {item.bookingStatus}
-                                </p>
-                            </div>
                         </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
         </div>
     );
 }

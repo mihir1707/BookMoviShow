@@ -129,10 +129,7 @@ const searchMovie = asyncHandler( async(req, res) => {
 
     const movies = await Movie.find({
         isActive: true,
-        title: {
-            $regex: q,
-            $options: "i",
-        }
+        $text: { $search: q }
     })
     .select('-cast -crew')
     .limit(10)

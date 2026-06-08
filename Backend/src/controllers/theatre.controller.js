@@ -126,8 +126,16 @@ const getNearbyTheatres = asyncHandler(async (req, res) => {
     );
 });
 
+const getAllTheatres = asyncHandler(async (req, res) => {
+    const theatres = await Theater.find().populate('cityId').sort({ createdAt: -1 });
+    return res.status(200).json(
+        new APIresponse(200, theatres, "All theatres fetched successfully")
+    );
+});
+
 export {
     seedTheatresByRadius,
     getTheatresByCity,
     getNearbyTheatres,
+    getAllTheatres,
 };

@@ -1,10 +1,8 @@
 import React from 'react'
 import ShowTImeBlock from './ShowTImeBlock.jsx'
-import {MoviesShowData} from '../assets/ShowData.js'
+import { MapPin, Info } from 'lucide-react'
 
-function ShowCard({ theaters, id, selectedDateIndex, selectedDateLabel }) {
-
-    const screens = MoviesShowData?.[0]?.screens || []
+function ShowCard({ theaterShows, id, selectedDateLabel }) {
 
     const isFutureShowTime = (time) => {
         const now = new Date()
@@ -18,59 +16,93 @@ function ShowCard({ theaters, id, selectedDateIndex, selectedDateLabel }) {
         if(modifier === "AM" && hours === 12) hours = 0
         const showTime = new Date(selectedDate)
         showTime.setHours(hours, minutes, 0, 0)
-        return showTime>now
+        return showTime > now
     }
 
     return (
-        <div className='flex flex-col gap-4 sm:gap-0 items-start mt-2 bg-black'>
+        <div className='flex flex-col gap-4 sm:gap-6 items-start mt-2 bg-black'>
             {
-                theaters.map((theater, idx) => {
+                theaterShows.map((theater) => {
 
-                    // <div>
-                        const screen = screens[idx % screens.length]
-                        const availableTimes = screen.times.filter(isFutureShowTime)
+                    // theater.showDates contains mapping from date (e.g., "12 Jun") to shows
+                    // Let's check if the selected date has shows
+                    
+                    // The UI selectedDateLabel format is usually "2026-06-12", but our DB stores "12 Jun"
+                    // We need to parse selectedDateLabel to match DB format.
+                    const dateObj = new Date(selectedDateLabel);
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const month = dateObj.toLocaleString('en-US', { month: 'short' });
+                    const formattedDate = `${day} ${month}`; // e.g. "12 Jun"
 
-                        if(!screen) return null
-                        if (availableTimes.length === 0) return null
+                    const dateData = theater.showDates[formattedDate];
+                    
+                    if (!dateData) return null; // No shows on this date for this theater
+                    
+                    // Flatten screens and times to check if there are future times
+                    let hasFutureTimes = false;
+                    dateData.screens.forEach(screen => {
+                        if (screen.times.some(t => isFutureShowTime(t.time))) {
+                            hasFutureTimes = true;
+                        }
+                    });
 
-                        return (
-                            <div
-                                key={theater._id}
-                                className='flex flex-col sm:flex-row items-start mt-0 sm:mt-5 gap-3 sm:gap-15 w-full sm:w-auto'
-                            >
+                    if (!hasFutureTimes) return null;
 
-                                {/* Theatre name */}
-                                <div className='text-white min-w-40 sm:min-w-50 self-start text-xs sm:text-base px-2 sm:ml-20 sm:mt-5'>
+                    return (
+                        <div
+                            key={theater._id}
+                            className='flex flex-col md:flex-row items-start md:items-stretch w-full bg-black border border-gray-800 hover:border-primary/50 transition-colors duration-300 rounded-xl overflow-hidden shadow-lg'
+                        >
+                            {/* Theatre Info Side */}
+                            <div className='w-full md:w-1/3 bg-black p-4 sm:p-5 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-800'>
+                                <h3 className='text-white font-bold text-base sm:text-lg mb-2'>
                                     {theater.name}
+                                </h3>
+                                <div className='flex items-start gap-1 text-gray-400 text-xs sm:text-sm mt-1'>
+                                    <MapPin className='w-4 h-4 flex-shrink-0 mt-0.5 text-primary' />
+                                    <span className='line-clamp-2'>{theater.address?.full || 'Location details available at venue'}</span>
                                 </div>
-
-                                <div className='ml-2 sm:ml-20 flex flex-col gap-2 sm:gap-4 p-2 sm:p-5 w-full'>
-
-                                    <div
-                                        className='flex flex-row flex-wrap gap-2 sm:gap-4'>
-                                        {
-                                            screen.times
-                                                .filter(time => isFutureShowTime(time))
-                                                .map((time, index) => (
-                                                <ShowTImeBlock
-                                                    key={`${screen._id}-${index}`}
-                                                    time={time}
-                                                    theatreId={theater._id}
-                                                    screenNo={screen.screenNo}
-                                                    theaterName={theater.name}
-                                                    id={id}
-                                                    selectedDateIndex={selectedDateIndex}
-                                                    selectedDateLabel={selectedDateLabel}
-                                                    seats={screen.seats}
-                                                />
-                                            ))
-                                        }
-                                    </div>
+                                <div className='flex items-center gap-1 text-gray-500 text-xs mt-3 cursor-pointer hover:text-gray-300 transition-colors w-fit'>
+                                    <Info className='w-3.5 h-3.5' />
+                                    <span>INFO</span>
                                 </div>
                             </div>
-                        )
-                    // </div>
-            })
+
+                            {/* Showtimes Side */}
+                            <div className='w-full md:w-2/3 p-4 sm:p-6 flex flex-col justify-center'>
+                                <p className='text-xs text-gray-400 mb-3 ml-2 flex items-center gap-2'>
+                                    <span className='w-1 h-1 bg-green-500 rounded-full'></span>
+                                    Available Showtimes
+                                </p>
+                                <div className='flex flex-col gap-4'>
+                                    {dateData.screens.map((screen) => {
+                                        const validTimes = screen.times.filter(t => isFutureShowTime(t.time));
+                                        if (validTimes.length === 0) return null;
+
+                                        return (
+                                            <div key={screen.screenNo} className="flex flex-row flex-wrap gap-3 sm:gap-4 items-center border-l-2 border-gray-800 pl-3">
+                                                <span className="text-gray-500 text-xs whitespace-nowrap min-w-[60px]">Screen {screen.screenNo}</span>
+                                                {validTimes.map((t, index) => (
+                                                    <ShowTImeBlock
+                                                        key={`${t.showId}-${index}`}
+                                                        time={t.time}
+                                                        showId={t.showId}
+                                                        theatreId={theater._id}
+                                                        screenNo={screen.screenNo}
+                                                        theaterName={theater.name}
+                                                        id={id}
+                                                        selectedDateLabel={selectedDateLabel}
+                                                        seats={screen.seats}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )
+                })
             }
         </div>
     )

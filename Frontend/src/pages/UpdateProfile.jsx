@@ -37,8 +37,8 @@ export default function UpdateProfile() {
         try {
             setLoading(true);
 
-            const res = await axios.put(
-                `${baseUrl}/users/update-profile`,
+            const res = await axios.patch(
+                `${baseUrl}/users/update-account`,
                 {
                     name,
                     username,

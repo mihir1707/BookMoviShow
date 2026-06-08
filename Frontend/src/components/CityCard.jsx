@@ -1,8 +1,8 @@
-export default function CityCard({ city }) {
+export default function CityCard({ city, onSelect }) {
     const Icon = city.icon;
 
     return (
-        <div className="flex flex-col items-center cursor-pointer m-3">
+        <div onClick={onSelect} className="flex flex-col items-center cursor-pointer m-3">
             <div
                 className={`p-5 rounded-full border-2 ${city.active
                         ? "border-teal-500 text-teal-500"

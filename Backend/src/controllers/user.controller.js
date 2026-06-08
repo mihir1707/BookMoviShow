@@ -263,9 +263,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     const UpdateUser = await User.findByIdAndUpdate(
         req.user?._id,
         {
-            $set: {
-                updateFields,
-            }
+            $set: updateFields
         },
         {
             new: true,
@@ -274,7 +272,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
     return res.status(200)
         .json(
-            new APIerror(
+            new APIresponse(
                 200,
                 UpdateUser,
                 "Account details updated successfully"

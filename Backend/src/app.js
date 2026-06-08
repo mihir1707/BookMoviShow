@@ -53,6 +53,8 @@ import paymentRouter from './routes/payment.router.js'
 import bookingRouter from './routes/booking.router.js'
 import theatreRoutes from "./routes/theatre.router.js";
 import razorpayRouter from "./routes/razorpay.router.js";
+import adminRouter from "./routes/admin.router.js";
+import showRouter from "./routes/show.router.js";
 
 
 app.use('/api/v1/users', userRouter)
@@ -62,5 +64,29 @@ app.use('/api/v1/payments', paymentRouter)
 app.use('/api/v1/booking', bookingRouter)
 app.use("/api/v1/theatres", theatreRoutes);
 app.use("/api/v1/razorpay", razorpayRouter);
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/shows", showRouter);
+
+// Global Error Handler Middleware
+app.use((err, req, res, next) => {
+    // If it's our custom APIerror
+    if (err.statusCode) {
+        return res.status(err.statusCode).json({
+            success: err.success || false,
+            message: err.message,
+            errors: err.errors || [],
+            data: null
+        });
+    }
+
+    // Default error
+    console.error("Unhandled Error:", err);
+    return res.status(500).json({
+        success: false,
+        message: err.message || "Internal Server Error",
+        errors: [],
+        data: null
+    });
+});
 
 export {app};

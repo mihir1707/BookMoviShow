@@ -17,7 +17,7 @@ const bookingSchema = new mongoose.Schema({
 
     theatreId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Theatre",
+        ref: "Theater",
         required: true,
     },
 

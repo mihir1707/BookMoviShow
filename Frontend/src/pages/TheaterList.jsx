@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import DateSelector from '../components/DateSelector'
 import ShowCard from '../components/ShowCard'
+import { Skeleton } from '../components/Skeleton'
 import axios from 'axios'
+import useCityStore from '../store/useCityStore'
 
 function TheaterList() {
 
-    const { id } = useParams()
+    const { id } = useParams() // this is movieId
 
     const [selectedDate, setSelectedDate] = useState(null)
     const [selectedDateLabel, setSelectedDateLabel] = useState(() => {
@@ -17,72 +19,64 @@ function TheaterList() {
         return `${yyyy}-${mm}-${dd}`
     })
 
-    const [nowShowingMovies, setNowShowingMovies] = useState([])
+    const [movie, setMovie] = useState(null)
     const [location, setLocation] = useState(null)
-    const [theater, setTheater] = useState([])
+    const [theaterShows, setTheaterShows] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
 
     const baseUrl = import.meta.env.VITE_BASE_URL;
+    const cityId = useCityStore(state => state.cityId);
+
+    // Get Movie Details
+    useEffect(() => {
+        axios.get(`${baseUrl}/movies/${id}`)
+            .then(res => setMovie(res.data.data))
+            .catch((error) => console.log("Movie data fetch error", error))
+    }, [id, baseUrl])
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                console.log("Location detected:", pos.coords)
                 setLocation({
                     lat: pos.coords.latitude,
                     lng: pos.coords.longitude,
                 })
             },
             (err) => {
-                console.error("Geolocation error:", err.message)
-                setLocation({ lat: 23.0269, lng: 72.5872 })
+                setLocation({ lat: 23.0269, lng: 72.5872 }) // fallback
             },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0,
-            }
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         )
     }, [])
 
-
-
     useEffect(() => {
-        axios.get(`${baseUrl}/movies/now-showing`)
-            .then(res => setNowShowingMovies(res.data.data || []))
-            .catch((error) => {
-                console.log("Now Showing Movies data fetch error", error)
-                setNowShowingMovies([])
-            })
-    }, [])
+        const fetchShows = async () => {
+            setIsLoading(true);
+            try {
+                const params = { movieId: id };
+                if (cityId && cityId !== "undefined") {
+                    params.cityId = cityId;
+                } else if (location) {
+                    params.lat = location.lat;
+                    params.lng = location.lng;
+                } else {
+                    return; // Wait for location
+                }
 
-    const movie = nowShowingMovies.find(
-        (m) => String(m._id) === String(id)
-    )
-
-    useEffect(() => {
-        if(!location){
-            console.log("Select a location")
-            return
-        }
-        axios.get(`${baseUrl}/theatres/nearby`, {
-            params: {
-                lat: location.lat,
-                lng: location.lng,
+                const res = await axios.get(`${baseUrl}/shows`, { params });
+                setTheaterShows(res.data.data || []);
+            } catch (err) {
+                console.error("Shows fetch error", err);
+                setTheaterShows([]);
+            } finally {
+                setIsLoading(false);
             }
-        })
-        .then((res) => {
-            setTheater(res.data.data || [])
-        })
-        .catch((err) => {
-            console.error("Nearby theatres fetch error", err);
-            setTheater([]);
-        });
-    },[location])
+        };
 
-    if (!movie) {
-        return <div className="mt-30">Not Available Movie</div>
-    }
+        fetchShows();
+    }, [location, cityId, id, baseUrl]);
 
+    if (!movie) return null;
 
     return (
         <div className='mt-20 sm:mt-30 mb-10 sm:mb-20 px-3 sm:px-6 md:px-10 lg:px-15'>
@@ -100,11 +94,8 @@ function TheaterList() {
                         {movie.censorRating}
                     </span>
 
-                    {movie.genres.map((g) => (
-                        <span
-                            key={g}
-                            className='text-white text-xs sm:text-sm rounded-full border-gray-300 border pl-2 pr-2 pb-0.5'
-                        >
+                    {movie.genres?.map((g) => (
+                        <span key={g} className='text-white text-xs sm:text-sm rounded-full border-gray-300 border pl-2 pr-2 pb-0.5'>
                             {g}
                         </span>
                     ))}
@@ -124,33 +115,30 @@ function TheaterList() {
             <hr className='border text-gray-700 shadow-sm shadow-gray-700' />
 
             <div className='m-3 sm:m-4 flex flex-wrap justify-end gap-3 sm:gap-5'>
-                <p className='text-xs sm:text-sm'>
-                    <span className="w-2 h-2 mr-1 bg-green-500 rounded-full inline-block"></span>
-                    AVAILABLE
-                </p>
-                <p className='text-xs sm:text-sm'>
-                    <span className="w-2 h-2 mr-1 bg-orange-400 rounded-full inline-block"></span>
-                    FAST FILLING
-                </p>
+                <p className='text-xs sm:text-sm'><span className="w-2 h-2 mr-1 bg-green-500 rounded-full inline-block"></span>AVAILABLE</p>
+                <p className='text-xs sm:text-sm'><span className="w-2 h-2 mr-1 bg-orange-400 rounded-full inline-block"></span>FAST FILLING</p>
             </div>
 
             <hr className='border text-gray-700' />
 
             <div className='m-3 sm:m-5 ml-3 sm:ml-10'>
                 <div className='mb-3'>
-                    <p className='text-lg sm:text-xl font-medium'>
-                        {location && theater && theater.length > 0
-                            ? ""
-                            : 'Not available'}
-                    </p>
+                    {isLoading ? (
+                        <div className="flex flex-col gap-4 mt-5">
+                            <Skeleton className="w-full h-24" />
+                            <Skeleton className="w-full h-24" />
+                            <Skeleton className="w-full h-24" />
+                        </div>
+                    ) : theaterShows.length === 0 ? (
+                        <p className='text-lg sm:text-xl font-medium'>No shows available for this date/location</p>
+                    ) : (
+                        <ShowCard
+                            theaterShows={theaterShows}
+                            id={String(id)}
+                            selectedDateLabel={selectedDateLabel}
+                        />
+                    )}
                 </div>
-
-                <ShowCard
-                    theaters={theater}
-                    id={String(id)}
-                    selectedDateIndex={selectedDate}
-                    selectedDateLabel={selectedDateLabel}
-                />
             </div>
         </div>
     )

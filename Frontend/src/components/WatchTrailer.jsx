@@ -3,7 +3,7 @@ import ReactPlayer from 'react-player';
 
 function WatchTrailer({ onClose, url }) {
     return (
-        <div onClick={onClose} className="fixed inset-0 bg-black/60 flex flex-col items-center justify-center">
+        <div onClick={onClose} className="fixed inset-0 z-[100] bg-black/80 flex flex-col items-center justify-center">
             <div 
                 onClick={(e) => e.stopPropagation()} 
                 className='bg-white w-200 rounded-lg pl-2 pr-2 relative'

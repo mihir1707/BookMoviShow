@@ -1,22 +1,21 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function ShowTImeBlock({ time, theatreId, screenNo, theaterName, id, selectedDateIndex, selectedDateLabel, seats = [] }) {
+function ShowTImeBlock({ time, showId, theatreId, screenNo, theaterName, id, selectedDateLabel, seats = [] }) {
 
     const navigate = useNavigate()
 
     return (
         <div
-            className="relative group flex border-2 border-green-500 text-green-600 w-35 h-12.5 justify-center items-center rounded-md cursor-pointer p-3 ml-5"
+            className="relative group flex border-2 border-green-500 text-green-600 w-35 h-12.5 justify-center items-center rounded-md cursor-pointer p-3"
             onClick={() => {
                 navigate(`/movie/${id}/${encodeURIComponent(theaterName)}/seat-layout`, {
                     state: {
-                        id,
-                        showId: `${id}-${time}`,
+                        id, // Movie ID
+                        showId: showId, // Actual DB Show ID
                         screenNo,
                         theaterName,
                         theatreId,
-                        selectedDateIndex,
                         selectedDateLabel,
                         selectedTime: time,
                         seatType: seats.map(s => s.type)

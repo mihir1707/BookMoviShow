@@ -15,7 +15,7 @@ import Signup from './pages/Signup.jsx'
 import Payment from './pages/Payment.jsx'
 import Releases from './pages/Releases.jsx'
 import UpdateProfile from './pages/UpdateProfile.jsx'
-// import GlobalEffects from "./components/GlobalEffects.jsx";
+import AdminDashboard from './pages/AdminDashboard.jsx'
 
 function App() {
 
@@ -49,6 +49,7 @@ function App() {
         <Route path='/favorite' element={<Favorite/>} />
         <Route path='/payment' element={<Payment/>} />
         <Route path='/profile' element={<UpdateProfile/>} />
+        <Route path='/admin' element={<AdminDashboard/>} />
       </Routes>
       {!hideNavbar && <hr className='border-2 mt-10'></hr>}
       {!hideNavbar && <Footer/>}

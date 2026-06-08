@@ -102,30 +102,9 @@ export default function Login() {
                 <h2 className="text-lg sm:text-xl font-semibold text-center">
                     Welcome back
                 </h2>
-                <p className="text-xs sm:text-sm text-center text-gray-400 mb-4 sm:mb-5">
+                <p className="text-xs sm:text-sm text-center text-gray-400 mb-6 sm:mb-8">
                     Please enter your details to sign in.
                 </p>
-
-                <div className="flex gap-2 sm:gap-3 mb-4 sm:mb-5">
-                    <button
-                        // onClick={handleGoogleLogin}
-                        className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition"
-                    >
-                        <FcGoogle size={18} className='sm:w-5 sm:h-5' />
-                    </button>
-
-                    {/* <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
-                        <FaMicrosoft size={16} className='sm:w-4.5 sm:h-4.5' color="#00A4EF" />
-                    </button>
-                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
-                        <FaFacebookF size={16} className='sm:w-4.5 sm:h-4.5' color="#1877F2" />
-                    </button>
-                    <button className="flex-1 cursor-pointer flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-900/50 transition">
-                        <FaTwitter size={16} className='sm:w-4.5 sm:h-4.5' color="#1DA1F2" />
-                    </button> */}
-                </div>
-
-                <div className="text-center text-xs mb-2 sm:mb-3 text-gray-400">OR</div>
 
                 {error && (
                     <p className="text-red-500 text-xs sm:text-sm text-center mb-3">

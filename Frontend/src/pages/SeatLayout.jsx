@@ -2,14 +2,13 @@ import { ChevronLeft, Pencil } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
-import { MoviesShowData } from '../assets/ShowData.js'
 import TicketSelectCard from '../components/TicketSelectCard'
 import Seats from '../components/Seats'
 
 function SeatLayout() {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id } = useParams()
+    const { id } = useParams() // This is movieId
 
     const {
         theaterName = "",
@@ -18,6 +17,7 @@ function SeatLayout() {
         seatType = [],
         screenNo,
         theatreId,
+        showId,
     } = location.state || {}
 
     const decodedTheaterName = decodeURIComponent(theaterName)
@@ -27,14 +27,14 @@ function SeatLayout() {
     const [seatCount, setSeatCount] = useState(1)
     const [selectedSeats, setSelectedSeats] = useState([])
     const [lockedSeats, setLockedSeats] = useState([]);
+    const [screen, setScreen] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
 
     const baseUrl = import.meta.env.VITE_BASE_URL;
 
     const createBooking = async () => {
         try {
             const token = localStorage.getItem("accessToken");
-
-            console.log("TOKEN:", token);
 
             if (!token) {
                 alert("Please login to continue booking")
@@ -85,6 +85,26 @@ function SeatLayout() {
     }
 
     useEffect(() => {
+        const fetchShowDetails = async () => {
+            setIsLoading(true);
+            try {
+                const res = await axios.get(`${baseUrl}/shows/${showId}`);
+                if (res.data?.data?.screenId) {
+                    setScreen(res.data.data.screenId);
+                }
+            } catch (err) {
+                console.error("Failed to fetch show details", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (showId) {
+            fetchShowDetails();
+        }
+    }, [showId, baseUrl]);
+
+    useEffect(() => {
         const fetchLockedSeats = async () => {
             try {
                 const res = await axios.get(
@@ -100,8 +120,6 @@ function SeatLayout() {
                     }
                 );
 
-                console.log(res.data)
-
                 setLockedSeats(res.data?.data || []);
             } catch (err) {
                 console.error("Failed to fetch locked seats", err);
@@ -111,7 +129,7 @@ function SeatLayout() {
         if(id && theatreId && screenNo && selectedTime && selectedDateLabel) {
             fetchLockedSeats();
         }
-    }, [id, theatreId, screenNo, selectedTime, selectedDateLabel]);
+    }, [id, theatreId, screenNo, selectedTime, selectedDateLabel, baseUrl]);
 
 
     useEffect(() => {
@@ -123,32 +141,21 @@ function SeatLayout() {
             .catch(err => {
                 console.error("Movie fetch error", err)
             })
-    }, [id])
+    }, [id, baseUrl])
 
-
-    const screen = useMemo(() => {
-        return MoviesShowData?.[0]?.screens?.find(
-            s => s.screenNo === screenNo
-        )
-    }, [screenNo])
-
-    if (!screen) {
-        return (
-            <div className="mt-30 text-white text-center">
-                Invalid Screen Selected
-            </div>
-        )
-    }
 
     const seatMap = useMemo(() => {
         const map = {}
-        screen.seats.forEach(seat => {
-            map[seat.type] = seat.total
-        })
+        if (screen && screen.seats) {
+            screen.seats.forEach(seat => {
+                map[seat.type] = seat.total
+            })
+        }
         return map
     }, [screen])
 
     const getSeatPrice = (type) => {
+        if (!screen || !screen.seats) return 0;
         const seat = screen.seats.find(s => s.type === type)
         return seat ? seat.price : 0
     }
@@ -161,6 +168,18 @@ function SeatLayout() {
     }, [selectedSeats, screen])
 
     let globalRowIndex = 0
+
+    if (isLoading) {
+        return <div className="mt-30 text-white text-center">Loading Screen...</div>
+    }
+
+    if (!screen) {
+        return (
+            <div className="mt-30 text-white text-center">
+                Invalid Screen Selected
+            </div>
+        )
+    }
 
     return (
         <>

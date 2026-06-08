@@ -61,6 +61,14 @@ function ProfileCard({ user }) {
                         >
                             Update Details
                         </li>
+                        {user?.role === 'admin' && (
+                            <li
+                                onClick={() => navigate("/admin")}
+                                className="px-4 py-2 hover:bg-primary-dull text-primary hover:text-black cursor-pointer font-bold"
+                            >
+                                Admin Panel
+                            </li>
+                        )}
                         <li
                             onClick={handleLogout}
                             className="px-4 py-2 hover:bg-primary-dull text-red-600 hover:text-black cursor-pointer"

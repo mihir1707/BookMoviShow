@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronDown, MenuIcon, SearchIcon, XIcon } from 'lucide-react'
 import LocationCard from './LocationCard';
 import ProfileCard from './ProfileCard';
 import { useAuth } from '../context/AuthContext.jsx';
 import { assets } from '../assets/assets.js';
+import useCityStore from '../store/useCityStore';
 
 function Navbar() {
 
@@ -12,46 +13,21 @@ function Navbar() {
 
     const { user, loading } = useAuth();
 
+    const city = useCityStore(state => state.city);
+    const setCityStore = useCityStore(state => state.setCity);
+
     const [openCity, setOpenCity] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const [showNavbar, setShowNavbar] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
 
-    const [currentCity, setCurrentCity] = useState(
-        localStorage.getItem("userCity") || "Select City"
-    );
-
-
     useEffect(() => {
-        const handleCityChange = (e) => {
-            setCurrentCity(e.detail);
-        };
-
-        window.addEventListener("city-changed", handleCityChange);
-
-        return () => {
-            window.removeEventListener("city-changed", handleCityChange);
-        };
-    }, []);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY
-
-            if (currentScrollY > lastScrollY && currentScrollY > 80) {
-                setShowNavbar(false)
-            }
-            else {
-                setShowNavbar(true)
-            }
-
-            setLastScrollY(currentScrollY)
+        const storedCity = localStorage.getItem("userCity");
+        if (storedCity && !city) {
+            setCityStore(storedCity, localStorage.getItem("userCityId"));
         }
-
-        window.addEventListener("scroll", handleScroll)
-        return () => window.removeEventListener("scroll", handleScroll)
-    }, [lastScrollY])
+    }, [city, setCityStore]);
 
     useEffect(() => {
         setMobileMenuOpen(false);
@@ -59,9 +35,7 @@ function Navbar() {
 
     return (
         <div
-            className={`bg-transparent fixed top-0 left-0 z-50 w-full flex items-center justify-between px-6 md:px-16 lg:px-16 py-5
-            transition-transform duration-300
-            ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}
+            className={`bg-black/95 backdrop-blur-md border-b border-gray-800 fixed top-0 left-0 z-50 w-full flex items-center justify-between px-6 md:px-16 lg:px-16 py-5`}
         >
 
             <Link to="/" className="flex items-center">
@@ -102,7 +76,7 @@ function Navbar() {
                 className='flex flex-row cursor-pointer'
                 onClick={() => setOpenCity(true)}
             >
-                {currentCity.toUpperCase()}
+                {(city || "Select City").toUpperCase()}
                 <ChevronDown className='w-4 h-4 mt-1.5 ml-1' />
             </button>
 
