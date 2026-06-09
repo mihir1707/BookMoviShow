@@ -30,14 +30,23 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        required: true,
         unique: true,
+        sparse: true,
         trim: true,
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
         select: false,
+    },
+    firebaseUid: {
+        type: String,
+        unique: true,
+        sparse: true,
+    },
+    authProvider: {
+        type: String,
+        enum: ["local", "google", "phone"],
+        default: "local",
     },
     refreshToken: {
         type: String,

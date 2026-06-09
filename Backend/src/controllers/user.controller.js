@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import APIresponse from "../utils/APIresponse.js";
 import { Movie } from "../models/movie.model.js";
 import jwt from "jsonwebtoken";
+import { adminAuth, isConfigured } from "../config/firebase.js";
 
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -31,7 +32,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
 const registerUser = asyncHandler(async (req, res) => {
 
-    const { name, email, username, password, phoneNumber } = req.body;
+    const { name, email, username, password, phoneNumber, role } = req.body;
 
     if (
         [name, email, username, password, phoneNumber]
@@ -39,9 +40,6 @@ const registerUser = asyncHandler(async (req, res) => {
     ) {
         throw new APIerror(400, "All fields are required");
     }
-
-
-    // console.log(name, email, username, password, phoneNumber)
 
     if (!/^\d{10}$/.test(String(phoneNumber))) {
         throw new APIerror(400, "Invalid phone number");
@@ -64,12 +62,17 @@ const registerUser = asyncHandler(async (req, res) => {
             throw new APIerror(409, "Phone number already exists");
     }
 
+    // Only allow "user" or "admin", default to "user" if invalid value sent
+    const allowedRoles = ["user", "admin"];
+    const assignedRole = allowedRoles.includes(role) ? role : "user";
+
     const user = await User.create({
         name,
         email,
         username,
         password,
         phoneNumber: String(phoneNumber),
+        role: assignedRole,
     })
 
     const createdUser = await User.findById(user._id);
@@ -160,6 +163,80 @@ const logoutUser = asyncHandler(async (req, res) => {
         )
 
 })
+
+const firebaseAuth = asyncHandler(async (req, res) => {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+        throw new APIerror(400, "Firebase ID token is required");
+    }
+
+    if (!isConfigured) {
+         throw new APIerror(500, "Firebase Admin is not configured on the server.");
+    }
+
+    let decodedToken;
+    try {
+        decodedToken = await adminAuth.verifyIdToken(idToken);
+    } catch (error) {
+        console.error("Firebase token verification error:", error);
+        throw new APIerror(401, "Invalid Firebase token");
+    }
+
+    const { uid, email, phone_number, name } = decodedToken;
+
+    // Check if user exists
+    let user = await User.findOne({
+        $or: [
+            { firebaseUid: uid },
+            email ? { email } : null,
+            phone_number ? { phoneNumber: phone_number } : null
+        ].filter(Boolean)
+    });
+
+    if (user) {
+        if (!user.firebaseUid) {
+            user.firebaseUid = uid;
+            user.authProvider = email ? "google" : "phone";
+            if (!user.phoneNumber && phone_number) user.phoneNumber = phone_number;
+            await user.save({ validateBeforeSave: false });
+        }
+    } else {
+        const newUserEmail = email || `${uid}@phone.bookmovishow.com`;
+        const newUserPhone = phone_number || undefined;
+        const newUserName = name || (email ? email.split("@")[0] : `user_${uid.substring(0, 5)}`);
+        const newUserUsername = `${newUserName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}_${Date.now().toString().slice(-4)}`;
+
+        user = await User.create({
+            name: newUserName,
+            email: newUserEmail,
+            username: newUserUsername,
+            phoneNumber: newUserPhone,
+            firebaseUid: uid,
+            authProvider: email ? "google" : "phone",
+            role: "user"
+        });
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+    const loggedInUser = await User.findById(user._id);
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+    };
+
+    return res.status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new APIresponse(
+                200,
+                { user: loggedInUser, accessToken, refreshToken },
+                "Authentication successful"
+            )
+        );
+});
 
 
 
@@ -353,4 +430,5 @@ export {
     updateAccountDetails,
     toggleFavoriteMovie,
     getFavoriteMovies,
+    firebaseAuth,
 }

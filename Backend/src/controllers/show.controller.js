@@ -85,6 +85,8 @@ export const getShowsForMovieInCity = asyncHandler(async (req, res) => {
         // Group by Date -> Screen -> Times
         const showDates = {};
         theaterShows.forEach(show => {
+            if (!show.screenId) return; // Skip shows with invalid/missing screen data
+
             if (!showDates[show.showDate]) {
                 showDates[show.showDate] = {
                     screens: []

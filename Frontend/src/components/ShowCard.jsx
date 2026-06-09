@@ -6,14 +6,20 @@ function ShowCard({ theaterShows, id, selectedDateLabel }) {
 
     const isFutureShowTime = (time) => {
         const now = new Date()
-        const selectedDate = new Date(selectedDateLabel)
+        
+        // Parse "YYYY-MM-DD" safely to avoid timezone shifts
+        const [year, month, day] = selectedDateLabel.split('-').map(Number);
+        const selectedDate = new Date(year, month - 1, day);
+
         if(selectedDate.toDateString() !== now.toDateString()){
-            return true
+            return selectedDate > now ? true : false;
         }
+
         const [timePart, modifier] = time.split(" ")
         let [hours, minutes] = timePart.split(":").map(Number)
         if(modifier === "PM" && hours !== 12) hours += 12
         if(modifier === "AM" && hours === 12) hours = 0
+
         const showTime = new Date(selectedDate)
         showTime.setHours(hours, minutes, 0, 0)
         return showTime > now
@@ -24,24 +30,22 @@ function ShowCard({ theaterShows, id, selectedDateLabel }) {
             {
                 theaterShows.map((theater) => {
 
-                    // theater.showDates contains mapping from date (e.g., "12 Jun") to shows
-                    // Let's check if the selected date has shows
-                    
                     // The UI selectedDateLabel format is usually "2026-06-12", but our DB stores "12 Jun"
-                    // We need to parse selectedDateLabel to match DB format.
-                    const dateObj = new Date(selectedDateLabel);
-                    const day = String(dateObj.getDate()).padStart(2, '0');
-                    const month = dateObj.toLocaleString('en-US', { month: 'short' });
-                    const formattedDate = `${day} ${month}`; // e.g. "12 Jun"
+                    // Parse safely
+                    const [year, m, d] = selectedDateLabel.split('-').map(Number);
+                    const dateObj = new Date(year, m - 1, d);
 
-                    const dateData = theater.showDates[formattedDate];
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const monthStr = dateObj.toLocaleString('en-US', { month: 'short' });
+                    const formattedDate = `${day} ${monthStr}`; // e.g. "12 Jun"
+
+                    const dateData = theater.showDates?.[formattedDate];
                     
-                    if (!dateData) return null; // No shows on this date for this theater
+                    if (!dateData || !dateData.screens) return null;
                     
-                    // Flatten screens and times to check if there are future times
                     let hasFutureTimes = false;
                     dateData.screens.forEach(screen => {
-                        if (screen.times.some(t => isFutureShowTime(t.time))) {
+                        if (screen.times && screen.times.some(t => isFutureShowTime(t.time))) {
                             hasFutureTimes = true;
                         }
                     });
@@ -76,7 +80,7 @@ function ShowCard({ theaterShows, id, selectedDateLabel }) {
                                 </p>
                                 <div className='flex flex-col gap-4'>
                                     {dateData.screens.map((screen) => {
-                                        const validTimes = screen.times.filter(t => isFutureShowTime(t.time));
+                                        const validTimes = screen.times?.filter(t => isFutureShowTime(t.time)) || [];
                                         if (validTimes.length === 0) return null;
 
                                         return (

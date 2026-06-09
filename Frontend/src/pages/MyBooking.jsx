@@ -31,6 +31,23 @@ function MyBooking() {
         }
     };
 
+    const cancelBooking = async (bookingId) => {
+        if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+        
+        try {
+            await axios.patch(
+                `${baseUrl}/booking/${bookingId}/cancel`, 
+                {}, 
+                { withCredentials: true }
+            );
+            alert("Booking cancelled successfully");
+            getMyBookings(); // refresh list
+        } catch (error) {
+            console.error("Cancel failed", error);
+            alert(error.response?.data?.message || "Failed to cancel booking");
+        }
+    };
+
     useEffect(() => {
         getMyBookings();
     }, []);
@@ -143,6 +160,15 @@ function MyBooking() {
                                     <p className="text-[9px] text-gray-500 mt-2 text-center uppercase">
                                         Scan at entrance
                                     </p>
+                                )}
+
+                                {(isConfirmed || isPending) && (
+                                    <button 
+                                        onClick={() => cancelBooking(item._id)}
+                                        className="mt-4 text-[10px] text-red-500 hover:text-red-400 uppercase tracking-wider font-semibold border border-red-500/30 hover:border-red-500 px-3 py-1 rounded-full transition-colors bg-transparent cursor-pointer"
+                                    >
+                                        Cancel Ticket
+                                    </button>
                                 )}
                             </div>
                         </div>

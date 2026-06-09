@@ -35,6 +35,12 @@ function TheaterList() {
     }, [id, baseUrl])
 
     useEffect(() => {
+        // If a city is already selected from the global store, we don't need location
+        if (cityId && cityId !== "undefined") {
+            setLocation(null);
+            return;
+        }
+
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 setLocation({
@@ -43,11 +49,12 @@ function TheaterList() {
                 })
             },
             (err) => {
-                setLocation({ lat: 23.0269, lng: 72.5872 }) // fallback
+                console.warn("Geolocation denied or failed, using default fallback");
+                setLocation({ lat: 19.0760, lng: 72.8777 }) // Fallback to Mumbai instead of hardcoded coords
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         )
-    }, [])
+    }, [cityId])
 
     useEffect(() => {
         const fetchShows = async () => {
@@ -60,7 +67,7 @@ function TheaterList() {
                     params.lat = location.lat;
                     params.lng = location.lng;
                 } else {
-                    return; // Wait for location
+                    return; // Wait for location or city
                 }
 
                 const res = await axios.get(`${baseUrl}/shows`, { params });

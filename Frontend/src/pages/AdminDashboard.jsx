@@ -15,11 +15,8 @@ function AdminDashboard() {
     const [movies, setMovies] = useState([]);
     const [activeTab, setActiveTab] = useState('overview');
 
-    // Seeding form state
-    const [lat, setLat] = useState('19.0760');
-    const [lng, setLng] = useState('72.8777');
-    const [radius, setRadius] = useState('50000');
-    const [isSeeding, setIsSeeding] = useState(false);
+    const [cities, setCities] = useState([]);
+    const [selectedCityId, setSelectedCityId] = useState("");
     const [isSyncing, setIsSyncing] = useState(false);
 
     // Show form state
@@ -38,14 +35,7 @@ function AdminDashboard() {
         }
     }, [user, loading, navigate]);
 
-    useEffect(() => {
-        if (user && user.role === 'admin') {
-            fetchStats();
-            fetchUsers();
-            fetchAllTheaters();
-            fetchAllMovies();
-        }
-    }, [user]);
+    // useEffect moved down
 
     const fetchStats = async () => {
         try {
@@ -83,25 +73,24 @@ function AdminDashboard() {
         }
     };
 
-    const handleSeedTheaters = async (e) => {
-        e.preventDefault();
-        setIsSeeding(true);
+    const fetchAllCities = async () => {
         try {
-            await axios.post(`${baseUrl}/theatres/seed`, {
-                lat: Number(lat),
-                lng: Number(lng),
-                radius: Number(radius)
-            }, { withCredentials: true });
-            toast.success("Theaters seeded successfully!");
-            fetchAllTheaters();
+            const res = await axios.get(`${baseUrl}/cities`);
+            setCities(res.data.data || []);
         } catch (error) {
-            console.error("Failed to seed theaters", error);
-            toast.error(error.response?.data?.message || "Failed to seed theaters");
-        } finally {
-            setIsSeeding(false);
+            console.error("Failed to fetch cities", error);
         }
     };
 
+    useEffect(() => {
+        if (user && user.role === 'admin') {
+            fetchStats();
+            fetchUsers();
+            fetchAllTheaters();
+            fetchAllMovies();
+            fetchAllCities();
+        }
+    }, [user]);
     const handleSyncMovies = async () => {
         setIsSyncing(true);
         try {
@@ -137,6 +126,13 @@ function AdminDashboard() {
             toast.error(error.response?.data?.message || "Failed to create show");
         }
     };
+
+    const filteredTheaters = selectedCityId 
+        ? theaters.filter(t => {
+            const tCityId = t.cityId?._id || t.cityId;
+            return String(tCityId) === String(selectedCityId);
+        }) 
+        : theaters;
 
     if (loading || !user) return <div className="mt-40 text-center">Loading...</div>;
 
@@ -177,29 +173,27 @@ function AdminDashboard() {
 
             {/* Theaters Tab */}
             {activeTab === 'theaters' && (
-                <div className="flex flex-col xl:flex-row gap-6">
-                    <div className="bg-black border border-gray-800 p-6 sm:p-10 rounded-xl shadow-lg w-full xl:w-1/3 h-fit">
-                        <h2 className="text-xl font-bold mb-4">Seed Theaters</h2>
-                        <form onSubmit={handleSeedTheaters} className="flex flex-col gap-5">
+                <div className="flex flex-col gap-6">
+                    <div className="bg-black border border-gray-800 p-6 sm:p-10 rounded-xl shadow-lg w-full h-fit">
+                        <h2 className="text-xl font-bold mb-4">Filter Theaters by City</h2>
+                        <div className="flex flex-col gap-5 max-w-md">
                             <div>
-                                <label className="block text-sm text-gray-400 mb-1">Latitude</label>
-                                <input type="text" value={lat} onChange={(e) => setLat(e.target.value)} className="w-full bg-black border border-gray-800 rounded p-3 text-white focus:border-primary" required />
+                                <label className="block text-sm text-gray-400 mb-1">Select City</label>
+                                <select 
+                                    value={selectedCityId} 
+                                    onChange={(e) => setSelectedCityId(e.target.value)} 
+                                    className="w-full bg-black border border-gray-800 rounded p-3 text-white focus:border-primary"
+                                >
+                                    <option value="">All Cities</option>
+                                    {cities.map(c => (
+                                        <option key={c._id} value={c._id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Longitude</label>
-                                <input type="text" value={lng} onChange={(e) => setLng(e.target.value)} className="w-full bg-black border border-gray-800 rounded p-3 text-white focus:border-primary" required />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Radius (m)</label>
-                                <input type="text" value={radius} onChange={(e) => setRadius(e.target.value)} className="w-full bg-black border border-gray-800 rounded p-3 text-white focus:border-primary" required />
-                            </div>
-                            <button type="submit" disabled={isSeeding} className="bg-primary hover:bg-primary-dull text-black font-bold py-3 rounded-md transition disabled:opacity-50">
-                                {isSeeding ? "Seeding..." : "Seed Theaters"}
-                            </button>
-                        </form>
+                        </div>
                     </div>
 
-                    <div className="bg-black border border-gray-800 rounded-xl shadow-lg overflow-hidden w-full xl:w-2/3">
+                    <div className="bg-black border border-gray-800 rounded-xl shadow-lg overflow-hidden w-full">
                         <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
                             <table className="w-full text-left text-sm">
                                 <thead className="bg-black text-gray-400 sticky top-0 z-10">
@@ -210,15 +204,15 @@ function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800">
-                                    {theaters.map(t => (
+                                    {filteredTheaters.map(t => (
                                         <tr key={t._id} className="hover:bg-gray-800/50 transition">
                                             <td className="px-6 py-4 text-white font-medium">{t.name}</td>
                                             <td className="px-6 py-4 text-gray-400">{t.cityId?.name || 'Unknown'}</td>
                                             <td className="px-6 py-4 text-gray-500 truncate max-w-[200px]">{t.address.full}</td>
                                         </tr>
                                     ))}
-                                    {theaters.length === 0 && (
-                                        <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-500">No theaters seeded yet.</td></tr>
+                                    {filteredTheaters.length === 0 && (
+                                        <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-500">No theaters found.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -237,7 +231,7 @@ function AdminDashboard() {
                             disabled={isSyncing}
                             className="bg-primary hover:bg-primary-dull text-black font-bold py-2 px-6 rounded-md transition disabled:opacity-50"
                         >
-                            {isSyncing ? "Syncing..." : "Sync Movies from PVR"}
+                            {isSyncing ? "Syncing..." : "Sync Movies"}
                         </button>
                     </div>
                     

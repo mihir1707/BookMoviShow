@@ -1,9 +1,9 @@
-import { Crosshair, Search } from 'lucide-react'
-import { cities } from '../lib/cities'
+import { Crosshair, Search, X } from 'lucide-react'
 import CityCard from './CityCard'
 import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import useCityStore from '../store/useCityStore'
+import { cities } from '../lib/cities'
 
 function LocationCard({ onClose }) {
 
@@ -58,12 +58,15 @@ function LocationCard({ onClose }) {
                 onClose()
             }
         }
-
         document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
+        return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [onClose])
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        document.body.style.overflow = 'hidden'
+        return () => { document.body.style.overflow = '' }
+    }, [])
 
     const detectLocation = () => {
         if (!navigator.geolocation) {
@@ -105,7 +108,7 @@ function LocationCard({ onClose }) {
                     );
 
                     if (!matchedCity) {
-                        alert(`City "${detectedCity}" not available`);
+                        alert(`City "${detectedCity}" is not yet available. Please select manually.`);
                         return;
                     }
 
@@ -113,10 +116,17 @@ function LocationCard({ onClose }) {
 
                 } catch (error) {
                     console.error("Location detection failed", error);
-                    alert("Unable to detect location");
+                    alert("Unable to detect location. Please select manually.");
                 }
             },
-            () => alert("Location permission denied")
+            (err) => {
+                if (err.code === 1) {
+                    alert("Location permission denied. Please select your city manually.");
+                } else {
+                    alert("Unable to get location. Please select your city manually.");
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     };
 
@@ -141,77 +151,84 @@ function LocationCard({ onClose }) {
 
 
     return (
-        <div className="fixed inset-70 bg-black flex items-center justify-center">
+        // Full-screen dark overlay
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-16 px-3 sm:px-4">
 
             <div
                 ref={modalRef}
                 onClick={(e) => e.stopPropagation()}
-                className='bg-stone-900 w-250 rounded-lg pl-2 pr-2 relative'
+                className='bg-stone-900 border border-gray-700 w-full max-w-xl rounded-xl p-4 shadow-2xl'
             >
-
-                <div className='flex items-center gap-3 px-4 py-3 rounded-md mt-2 border-2 border-white'>
-                    <Search size={18} className="" />
-                    <input
-                        placeholder="Search for your city"
-                        className="w-full outline-none "
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                    />
+                {/* Header */}
+                <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-semibold text-white">Select Your City</p>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-white cursor-pointer"
+                    >
+                        <X size={18} />
+                    </button>
                 </div>
 
-                {
-                    results.length > 0 && (
-                        <div className='border mt-2 rounded-md max-h-52 overflow-y-auto'>
-                            {
-                                results.map((c) => (
-                                    <div
-                                        key={c._id}
-                                        onClick={() => selectCity(c)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-black"
-                                    >
-                                        <p
-                                            className="font-medium text-md"
-                                        >
-                                            {c.name}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            {c.state}
-                                            {/* • {c.cinemaCount} cinemas */}
-                                        </p>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    )
-                }
+                {/* Search Box */}
+                <div className='flex items-center gap-3 px-3 py-2 rounded-md border border-gray-600 bg-black focus-within:border-primary transition-colors'>
+                    <Search size={16} className="text-gray-400 flex-shrink-0" />
+                    <input
+                        placeholder="Search for your city..."
+                        className="w-full outline-none bg-transparent text-sm text-white placeholder-gray-500"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        autoFocus
+                    />
+                    {city && (
+                        <button onClick={() => setCity("")} className="text-gray-400 hover:text-white flex-shrink-0">
+                            <X size={14} />
+                        </button>
+                    )}
+                </div>
+
+                {/* Search Results */}
+                {results.length > 0 && (
+                    <div className='border border-gray-700 mt-2 rounded-md max-h-48 overflow-y-auto bg-black'>
+                        {results.map((c) => (
+                            <div
+                                key={c._id}
+                                onClick={() => selectCity(c)}
+                                className="px-4 py-2.5 cursor-pointer hover:bg-gray-900 border-b border-gray-800 last:border-0"
+                            >
+                                <p className="font-medium text-sm text-white">{c.name}</p>
+                                <p className="text-xs text-gray-500">{c.state}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 {loading && city && (
-                    <p className="text-sm text-gray-500 mt-2 px-4">
-                        Searching cities for <span className="font-semibold">`{city}`</span>...
+                    <p className="text-sm text-gray-500 mt-2 px-1">
+                        Searching for <span className="font-semibold text-gray-300">"{city}"</span>...
                     </p>
                 )}
 
                 {!loading && city.length >= 2 && results.length === 0 && (
-                    <p className="text-sm text-gray-400 mt-2 px-4">
-                        No cities found for "{city}"
+                    <p className="text-sm text-gray-400 mt-2 px-1">
+                        No cities found for "{city}". Try another name.
                     </p>
                 )}
 
-
-
+                {/* Detect Location Button */}
                 <button
                     onClick={detectLocation}
-                    className="flex items-center gap-2 text-red-500 mt-4 text-md cursor-pointer"
+                    className="flex items-center gap-2 text-red-400 hover:text-red-300 mt-4 text-sm cursor-pointer transition-colors"
                 >
-                    <Crosshair size={16} />
+                    <Crosshair size={15} />
                     Detect my location
                 </button>
 
-                <hr className="my-3 text-white w-full" />
+                <hr className="my-3 border-gray-700" />
 
-                <p className='text-center mb-5'>Popular Cities</p>
+                <p className='text-xs text-gray-400 mb-3 font-medium uppercase tracking-wider'>Popular Cities</p>
 
-                <div className='grid grid-cols-10 gap-2'>
+                <div className='grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2'>
                     {cities.map((c) => (
                         <div key={c.name} className="flex flex-col items-center">
                             <CityCard
@@ -221,10 +238,6 @@ function LocationCard({ onClose }) {
                         </div>
                     ))}
                 </div>
-
-                {/* <p className='text-center text-primary mt-4 mb-4 text-sm cursor-pointer'>
-                    View All Cities
-                </p> */}
 
             </div>
         </div>
