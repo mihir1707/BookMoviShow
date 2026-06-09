@@ -1,12 +1,12 @@
- # 🎬 BookMoviShow
+ # BookMoviShow
 
-🚀 **A Simple & Secure Movie Ticket Booking App**
+**A Simple & Secure Movie Ticket Booking App**
 
 Welcome to **BookMoviShow**! This is a complete website where you can look up movies, pick your favorite seats, and buy tickets safely online. It's built to feel just like real movie booking platforms, complete with a system that "locks" your seat while you're paying so nobody else can snatch it!
 
 ---
 
-## 📌 What is BookMoviShow?
+## What is BookMoviShow?
 
 BookMoviShow is designed to give you a smooth and fun movie booking experience. With this app, you can:
 
@@ -19,21 +19,21 @@ BookMoviShow is designed to give you a smooth and fun movie booking experience. 
 
 ---
 
-## 🌟 Cool Features
+## Features
 
-- 🔐 **Easy Login:** Sign up or log in securely (Now featuring Google & Phone Login!).
-- 🎥 **Movie Browsing:** Scroll through awesome posters for 'Now Showing' and 'Coming Soon' movies.
-- 🌍 **City Selection:** Automatically find theaters based on your chosen city.
-- 🪑 **Interactive Seating Map:** A visual grid where you can click to select Normal, Executive, or VIP seats.
-- 🔒 **Smart Seat Locking:** If you select a seat, we lock it for a few minutes so nobody else can take it while you enter your payment details.
-- 💳 **Real Payments:** Integrated with Razorpay so you can securely pay for tickets.
-- 📱 **Mobile Friendly:** The website looks great on both your phone and your computer.
+- **Easy Login:** Sign up or log in securely (Now featuring Google & Phone Login!).
+- **Movie Browsing:** Scroll through awesome posters for 'Now Showing' and 'Coming Soon' movies.
+- **City Selection:** Automatically find theaters based on your chosen city.
+- **Interactive Seating Map:** A visual grid where you can click to select Normal, Executive, or VIP seats.
+- **Smart Seat Locking:** If you select a seat, we lock it for a few minutes so nobody else can take it while you enter your payment details.
+- **Real Payments:** Integrated with Razorpay so you can securely pay for tickets.
+- **Mobile Friendly:** The website looks great on both your phone and your computer.
 
 ---
 
-## 📸 Sneak Peek (Screenshots)
+## Images
 
-### 🏠 Home Page
+### Home Page
 <p align="center">
   <img src="Screenshots/Home_Page/home-1.png" width="45%" />
   <img src="Screenshots/Home_Page/home-2.png" width="45%" />
@@ -45,7 +45,7 @@ BookMoviShow is designed to give you a smooth and fun movie booking experience. 
 
 ---
 
-### 🎬 Movies Page
+### Movies Page
 <p align="center">
   <img src="Screenshots/Movies_Page/movie-1.png" width="45%" />
   <img src="Screenshots/Movies_Page/movie-2.png" width="45%" />
@@ -53,7 +53,7 @@ BookMoviShow is designed to give you a smooth and fun movie booking experience. 
 
 ---
 
-### 🎥 Movie Details Page
+### Movie Details Page
 <p align="center">
   <img src="Screenshots/Movie_Details/movie-details-1.png" width="45%" />
   <img src="Screenshots/Movie_Details/movie-details-2.png" width="45%" />
@@ -64,7 +64,7 @@ BookMoviShow is designed to give you a smooth and fun movie booking experience. 
 
 ---
 
-### 🏢 Theater List
+### Theater List
 <p align="center">
   <img src="Screenshots/Theater_List/theater-list-1.png" width="45%" />
   <img src="Screenshots/Theater_List/theater-list-2.png" width="45%" />
@@ -72,7 +72,7 @@ BookMoviShow is designed to give you a smooth and fun movie booking experience. 
 
 ---
 
-### 🪑 Seat Selection Page
+### Seat Selection Page
 <p align="center">
   <img src="Screenshots/Seat_Layout/seat-layout-1.png" width="45%" />
   <img src="Screenshots/Seat_Layout/seat-layout-2.png" width="45%" />
@@ -84,14 +84,14 @@ BookMoviShow is designed to give you a smooth and fun movie booking experience. 
 
 ---
 
-### 💳 Payment Page
+### Payment Page
 <p align="center">
   <img src="Screenshots/Payment_Page/payment-1.png" width="45%" />
 </p>
 
 ---
 
-### ❤️ Favorite Page
+### Favorite Page
 <p align="center">
   <img src="Screenshots/Favorite/favorite-1.png" width="45%" />
 </p>
@@ -108,7 +108,7 @@ This project is built using the popular **MERN Stack**:
 
 ---
 
-## ⚙️ How to Run This on Your Computer
+## How to Run This on Your Computer
 
 Want to run this project yourself? Just follow these simple steps!
 
@@ -183,7 +183,7 @@ npm run dev
 
 ---
 
-## 🔐 How the "Seat Lock" Works
+## How the "Seat Lock" Works
 
 Have you ever tried to buy tickets and someone else stole your seat at the last second? We fixed that!
 - When you click on a seat, we put a temporary "lock" on it.
@@ -193,24 +193,13 @@ Have you ever tried to buy tickets and someone else stole your seat at the last 
 
 ---
 
-## 🔮 What's Coming Next?
-
-We are always looking to improve! Future updates might include:
-- A dedicated Admin Dashboard to add movies easily.
-- Getting your ticket sent directly to your email.
-- Scanning a QR code at the theater to walk right in.
-- Live seat updates (seeing seats disappear in real-time as others book them).
-- Allowing users to write reviews and rate movies.
-
----
-
-## 👨💻 Created By
+## Created By
 
 **Mihir Khunt**  
 Check out my GitHub: [github.com/mihir1707](https://github.com/mihir1707)  
 
 ---
 
-## 📄 License
+## License
 
 This project was built for fun, education, and learning purposes! Feel free to explore the code.
