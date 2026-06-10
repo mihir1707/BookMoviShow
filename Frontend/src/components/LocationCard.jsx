@@ -157,7 +157,7 @@ function LocationCard({ onClose }) {
             <div
                 ref={modalRef}
                 onClick={(e) => e.stopPropagation()}
-                className='bg-stone-900 border border-gray-700 w-full max-w-xl rounded-xl p-4 shadow-2xl'
+                className='bg-stone-900 border border-gray-700 w-full max-w-4xl rounded-xl p-4 shadow-2xl'
             >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3">
