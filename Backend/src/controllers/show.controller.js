@@ -38,14 +38,14 @@ export const addShow = asyncHandler(async (req, res) => {
 
 // Public: Get all theaters and their shows for a specific movie in a city or location
 export const getShowsForMovieInCity = asyncHandler(async (req, res) => {
-    const { movieId, cityId, lat, lng, radius = 20000 } = req.query;
+    const { movieId, cityId, cityName, lat, lng, radius = 20000 } = req.query;
 
     if (!movieId) {
         throw new APIerror(400, "movieId is required");
     }
     
-    if (!cityId && (!lat || !lng)) {
-        throw new APIerror(400, "cityId or lat/lng is required");
+    if (!cityId && !cityName && (!lat || !lng)) {
+        throw new APIerror(400, "cityId, cityName or lat/lng is required");
     }
 
     let theaters = [];
@@ -53,7 +53,76 @@ export const getShowsForMovieInCity = asyncHandler(async (req, res) => {
     // 1. Find theaters
     if (cityId && cityId !== "undefined") {
         theaters = await Theater.find({ cityId, isActive: true }).lean();
-    } else {
+        if (!theaters.length) {
+            const { City } = await import("../models/city.model.js");
+            const city = await City.findById(cityId);
+            if (city) {
+                try {
+                    const { getTheatresByRadius } = await import("../services/geoapify.services.js");
+                    const { mapGeoapifyToTheater } = await import("../utils/theatre.mapper.js");
+                    const places = await getTheatresByRadius(city.latitude, city.longitude, 20000);
+                    if (places && places.length > 0) {
+                        const bulkOps = [];
+                        for (const place of places) {
+                            if (!place?.properties?.place_id) continue;
+                            const theaterData = mapGeoapifyToTheater(place, city._id, null);
+                            if (theaterData?.geoapifyPlaceId) {
+                                bulkOps.push({
+                                    updateOne: {
+                                        filter: { $or: [{ geoapifyPlaceId: theaterData.geoapifyPlaceId }, { name: theaterData.name, cityId: theaterData.cityId }] },
+                                        update: { $set: theaterData },
+                                        upsert: true,
+                                    },
+                                });
+                            }
+                        }
+                        if (bulkOps.length > 0) {
+                            await Theater.bulkWrite(bulkOps, { ordered: false });
+                            theaters = await Theater.find({ cityId: city._id, isActive: true }).lean();
+                        }
+                    }
+                } catch (e) {
+                    console.error("Auto-seed theaters error (cityId):", e);
+                }
+            }
+        }
+    } else if (cityName && cityName !== "undefined") {
+        const { City } = await import("../models/city.model.js");
+        const city = await City.findOne({ name: { $regex: new RegExp(`^${cityName}$`, 'i') } });
+        if (city) {
+            theaters = await Theater.find({ cityId: city._id, isActive: true }).lean();
+            if (!theaters.length) {
+                // Auto-seed from Geoapify
+                try {
+                    const { getTheatresByRadius } = await import("../services/geoapify.services.js");
+                    const { mapGeoapifyToTheater } = await import("../utils/theatre.mapper.js");
+                    const places = await getTheatresByRadius(city.latitude, city.longitude, 20000);
+                    if (places && places.length > 0) {
+                        const bulkOps = [];
+                        for (const place of places) {
+                            if (!place?.properties?.place_id) continue;
+                            const theaterData = mapGeoapifyToTheater(place, city._id, null);
+                            if (theaterData?.geoapifyPlaceId) {
+                                bulkOps.push({
+                                    updateOne: {
+                                        filter: { $or: [{ geoapifyPlaceId: theaterData.geoapifyPlaceId }, { name: theaterData.name, cityId: theaterData.cityId }] },
+                                        update: { $set: theaterData },
+                                        upsert: true,
+                                    },
+                                });
+                            }
+                        }
+                        if (bulkOps.length > 0) {
+                            await Theater.bulkWrite(bulkOps, { ordered: false });
+                            theaters = await Theater.find({ cityId: city._id, isActive: true }).lean();
+                        }
+                    }
+                } catch (e) {
+                    console.error("Auto-seed theaters error:", e);
+                }
+            }
+        }
+    } else if (lat && lng) {
         theaters = await Theater.find({
             isActive: true,
             location: {
@@ -63,6 +132,44 @@ export const getShowsForMovieInCity = asyncHandler(async (req, res) => {
                 },
             },
         }).lean();
+        if (!theaters.length) {
+            // Auto-seed from Geoapify for lat/lng
+            try {
+                const { getTheatresByRadius } = await import("../services/geoapify.services.js");
+                const { mapGeoapifyToTheater } = await import("../utils/theatre.mapper.js");
+                const places = await getTheatresByRadius(Number(lat), Number(lng), Number(radius));
+                if (places && places.length > 0) {
+                    const bulkOps = [];
+                    for (const place of places) {
+                        if (!place?.properties?.place_id) continue;
+                        const theaterData = mapGeoapifyToTheater(place, null, null);
+                        if (theaterData?.geoapifyPlaceId) {
+                            bulkOps.push({
+                                updateOne: {
+                                    filter: { geoapifyPlaceId: theaterData.geoapifyPlaceId },
+                                    update: { $set: theaterData },
+                                    upsert: true,
+                                },
+                            });
+                        }
+                    }
+                    if (bulkOps.length > 0) {
+                        await Theater.bulkWrite(bulkOps, { ordered: false });
+                        theaters = await Theater.find({
+                            isActive: true,
+                            location: {
+                                $near: {
+                                    $geometry: { type: "Point", coordinates: [Number(lng), Number(lat)] },
+                                    $maxDistance: Number(radius),
+                                },
+                            },
+                        }).lean();
+                    }
+                }
+            } catch (e) {
+                console.error("Auto-seed theaters error:", e);
+            }
+        }
     }
 
     if (!theaters.length) {
@@ -72,13 +179,29 @@ export const getShowsForMovieInCity = asyncHandler(async (req, res) => {
     const theaterIds = theaters.map(t => t._id);
 
     // 2. Find all shows for these theaters and this movie
-    const shows = await Show.find({
+    let shows = await Show.find({
         movieId,
         theatreId: { $in: theaterIds },
         isActive: true
     }).populate("screenId").lean();
 
-    // 3. Group by Theater and structure it nicely
+    // 3. Auto-seed shows if none exist for this movie and theater
+    if (shows.length === 0 && theaters.length > 0) {
+        try {
+            console.log("No shows found for this movie. Auto-generating random shows...");
+            const { seedRandomShowsForMovieAndTheaters } = await import("../utils/showSeeder.js");
+            await seedRandomShowsForMovieAndTheaters(movieId, theaters);
+            shows = await Show.find({
+                movieId,
+                theatreId: { $in: theaterIds },
+                isActive: true
+            }).populate("screenId").lean();
+        } catch (e) {
+            console.error("Auto-seed shows error:", e);
+        }
+    }
+
+    // 4. Group by Theater and structure it nicely
     const groupedTheaters = theaters.map(theater => {
         const theaterShows = shows.filter(s => s.theatreId.toString() === theater._id.toString());
         

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { auth, googleProvider, RecaptchaVerifier, signInWithPhoneNumber } from "../lib/firebase.js";
 import { signInWithPopup } from "firebase/auth";
+import useCityStore from "../store/useCityStore.js";
 
 export default function Login() {
 
@@ -26,6 +27,44 @@ export default function Login() {
 
     const baseUrl = import.meta.env.VITE_BASE_URL;
 
+    const detectAndSetLocation = () => {
+        if (!navigator.geolocation) return;
+
+        navigator.geolocation.getCurrentPosition(
+            async ({ coords }) => {
+                try {
+                    const { latitude, longitude } = coords;
+                    const res = await axios.get(
+                        "https://nominatim.openstreetmap.org/reverse",
+                        { params: { lat: latitude, lon: longitude, format: "json" } }
+                    );
+
+                    const address = res.data.address || {};
+                    const detectedCity = address.city || address.town || address.village || address.state;
+
+                    if (!detectedCity) return;
+
+                    const searchRes = await axios.get(`${baseUrl}/cities/search`, { params: { city: detectedCity } });
+                    const results = searchRes.data.data || [];
+                    
+                    const matchedCity = results.find(
+                        (c) => c.name.toLowerCase() === detectedCity.toLowerCase()
+                    );
+
+                    if (matchedCity) {
+                        useCityStore.getState().setCity(matchedCity.name, matchedCity._id);
+                    }
+                } catch (error) {
+                    console.error("Auto location detection failed", error);
+                }
+            },
+            (err) => {
+                console.warn("Location permission denied for auto-detect", err);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    };
+
     const handleFirebaseAuth = async (idToken) => {
         try {
             setLoading(true);
@@ -43,6 +82,7 @@ export default function Login() {
             localStorage.setItem("loginTime", Date.now());
 
             setUser(user);
+            detectAndSetLocation();
             alert("Login successful");
             navigate("/");
         } catch (err) {
@@ -124,6 +164,7 @@ export default function Login() {
             localStorage.setItem("loginTime", Date.now());
 
             setUser(user);
+            detectAndSetLocation();
 
             alert("Login successful");
             navigate("/"); // redirect after login

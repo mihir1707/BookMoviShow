@@ -60,9 +60,12 @@ function TheaterList() {
         const fetchShows = async () => {
             setIsLoading(true);
             try {
+                const cityName = useCityStore.getState().city;
                 const params = { movieId: id };
                 if (cityId && cityId !== "undefined") {
                     params.cityId = cityId;
+                } else if (cityName && cityName !== "undefined") {
+                    params.cityName = cityName;
                 } else if (location) {
                     params.lat = location.lat;
                     params.lng = location.lng;

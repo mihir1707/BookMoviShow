@@ -9,7 +9,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
         if (dates.length > 0) {
             setSelectedDate(0);
             setSelectedDateLabel(
-                dayjs(dates[0].fullDate).format('ddd, DD MMM, YYYY')
+                dayjs(dates[0].fullDate).format('YYYY-MM-DD')
             )
         }
     }, [])
@@ -23,7 +23,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
             setDates(getNext7Days())
             setSelectedDate(0)
             setSelectedDateLabel(
-                dayjs(dates[0].fullDate).format('ddd, DD MMM, YYYY')
+                dayjs(dates[0].fullDate).format('YYYY-MM-DD')
             )
         }, timeout)
 
@@ -43,7 +43,7 @@ function DateSelector({ selectedDate, setSelectedDate, setSelectedDateLabel }) {
                             if (!isDisabled) {
                                 setSelectedDate(index)
                                 setSelectedDateLabel(
-                                    dayjs(item.fullDate).format('ddd, DD MMM, YYYY')
+                                    dayjs(item.fullDate).format('YYYY-MM-DD')
                                 )
                             }
                         }}
